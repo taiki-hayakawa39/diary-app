@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2f5d62" />
+    <title>diary-app</title>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="editor-panel" aria-labelledby="app-title">
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">diary-app</p>
+            <h1 id="app-title">今日の日記</h1>
+          </div>
+          <button id="installButton" class="icon-button" type="button" hidden title="インストール">
+            +
+          </button>
+        </div>
+
+        <form id="diaryForm" class="diary-form">
+          <label>
+            日付
+            <input id="entryDate" name="entryDate" type="date" required />
+          </label>
+
+          <label>
+            タイトル
+            <input
+              id="entryTitle"
+              name="entryTitle"
+              type="text"
+              maxlength="60"
+              placeholder="一日の見出し"
+              required
+            />
+          </label>
+
+          <label>
+            本文
+            <textarea
+              id="entryBody"
+              name="entryBody"
+              rows="10"
+              placeholder="今日あったこと、感じたことを書いてください。"
+              required
+            ></textarea>
+          </label>
+
+          <div class="action-row">
+            <button type="submit">保存</button>
+            <button id="clearButton" class="secondary-button" type="button">新規</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="entries-panel" aria-labelledby="entries-title">
+        <div class="entries-header">
+          <h2 id="entries-title">保存した日記</h2>
+          <input id="searchInput" type="search" placeholder="検索" aria-label="日記を検索" />
+        </div>
+        <ul id="entryList" class="entry-list" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
