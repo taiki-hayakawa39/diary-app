@@ -25,6 +25,8 @@ const adBanner = document.querySelector(".ad-banner");
 const editorDialog = document.querySelector("#editorDialog");
 const diaryForm = document.querySelector("#diaryForm");
 const closeEditorButton = document.querySelector("#closeEditorButton");
+const editorTitle = document.querySelector("#editorTitle");
+const editorTimeLabel = document.querySelector("#editorTimeLabel");
 const entryDate = document.querySelector("#entryDate");
 const entryTitle = document.querySelector("#entryTitle");
 const entryBody = document.querySelector("#entryBody");
@@ -49,6 +51,11 @@ const timeFormatter = new Intl.DateTimeFormat("ja-JP", {
   hour: "numeric",
   minute: "2-digit",
   hour12: false,
+});
+const editorDateFormatter = new Intl.DateTimeFormat("ja-JP", {
+  month: "long",
+  day: "numeric",
+  weekday: "short",
 });
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -152,6 +159,18 @@ function switchView(viewName) {
 function formatEntryTime(entry) {
   const source = entry.createdAt || entry.updatedAt || new Date().toISOString();
   return timeFormatter.format(new Date(source));
+}
+
+function formatEditorDate(dateKey) {
+  return editorDateFormatter.format(fromDateKey(dateKey)).replace("曜日", "");
+}
+
+function deriveTitle(body, fallbackDate) {
+  const firstLine = body
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+  return (firstLine || `${formatEditorDate(fallbackDate)}の日記`).slice(0, 60);
 }
 
 function createEntryCard(entry) {
@@ -299,12 +318,16 @@ function render() {
   renderSettings();
 }
 
-function openEditor(entry = null) {
-  const targetEntry = entry || getEntryForDate(selectedDate);
+function openEditor(entry = null, options = {}) {
+  const targetEntry = options.blank ? null : entry || getEntryForDate(selectedDate);
+  const dateKey = targetEntry?.date || selectedDate;
+  const timestamp = targetEntry?.createdAt || targetEntry?.updatedAt || new Date().toISOString();
   editingId = targetEntry?.id || null;
-  entryDate.value = targetEntry?.date || selectedDate;
+  entryDate.value = dateKey;
   entryTitle.value = targetEntry?.title || "";
   entryBody.value = targetEntry?.body || "";
+  editorTitle.textContent = formatEditorDate(dateKey);
+  editorTimeLabel.textContent = timeFormatter.format(new Date(timestamp));
   deleteEntryButton.hidden = !targetEntry;
 
   if (typeof editorDialog.showModal === "function") {
@@ -313,11 +336,15 @@ function openEditor(entry = null) {
     editorDialog.setAttribute("open", "");
   }
 
-  entryTitle.focus();
+  requestAnimationFrame(() => entryBody.focus());
 }
 
 function closeEditor() {
-  editorDialog.close();
+  if (typeof editorDialog.close === "function") {
+    editorDialog.close();
+  } else {
+    editorDialog.removeAttribute("open");
+  }
 }
 
 function saveEntry() {
@@ -331,7 +358,7 @@ function saveEntry() {
   const nextEntry = {
     id: existingEntry?.id || crypto.randomUUID(),
     date: dateKey,
-    title: entryTitle.value.trim(),
+    title: entryTitle.value.trim() || deriveTitle(entryBody.value, dateKey),
     body: entryBody.value.trim(),
     createdAt: existingEntry?.createdAt || now,
     updatedAt: now,
@@ -377,7 +404,7 @@ todayButton.addEventListener("click", () => {
   render();
 });
 
-composeButton.addEventListener("click", () => openEditor());
+composeButton.addEventListener("click", () => openEditor(null, { blank: true }));
 
 hideAdButton.addEventListener("click", () => {
   adBanner.classList.add("is-hidden");
@@ -441,3 +468,7 @@ if ("serviceWorker" in navigator) {
 }
 
 switchView(currentView);
+
+if (new URLSearchParams(location.search).has("write")) {
+  openEditor(null, { blank: true });
+}

@@ -200,28 +200,52 @@
 
       <dialog id="editorDialog" class="editor-dialog" aria-labelledby="editorTitle">
         <form id="diaryForm" class="diary-form" method="dialog">
-          <div class="dialog-header">
-            <button id="closeEditorButton" class="text-button" type="button">閉じる</button>
-            <h2 id="editorTitle">日記を書く</h2>
-            <button class="text-button accent-text" type="submit">保存</button>
-          </div>
+          <header class="write-header">
+            <button id="closeEditorButton" class="write-circle-button" type="button" title="戻る">
+              <span class="back-icon" aria-hidden="true"></span>
+            </button>
+            <div class="write-date-pill">
+              <h2 id="editorTitle"></h2>
+              <p id="editorTimeLabel"></p>
+            </div>
+            <button class="write-circle-button menu-button" type="button" title="メニュー">
+              <span aria-hidden="true">•••</span>
+            </button>
+            <button id="saveEditorButton" class="write-circle-button save-circle-button" type="submit" title="保存">
+              <span class="check-icon" aria-hidden="true"></span>
+            </button>
+          </header>
 
           <input id="entryDate" name="entryDate" type="date" required />
           <input
             id="entryTitle"
+            class="visually-hidden"
             name="entryTitle"
             type="text"
             maxlength="60"
-            placeholder="タイトル"
-            required
+            tabindex="-1"
           />
           <textarea
             id="entryBody"
             name="entryBody"
-            rows="10"
-            placeholder="今日のことを書く"
+            rows="16"
+            aria-label="日記本文"
             required
           ></textarea>
+          <div class="write-toolbox" aria-label="入力ツール">
+            <button type="button" title="画像を追加">
+              <span class="image-icon" aria-hidden="true"></span>
+            </button>
+            <button type="button" title="写真を撮る">
+              <span class="camera-icon" aria-hidden="true"></span>
+            </button>
+            <button type="button" title="元に戻す" disabled>
+              <span class="undo-icon" aria-hidden="true"></span>
+            </button>
+            <button type="button" title="やり直す" disabled>
+              <span class="redo-icon" aria-hidden="true"></span>
+            </button>
+          </div>
           <button id="deleteEntryButton" class="delete-entry-button" type="button" hidden>
             この日記を削除
           </button>
