@@ -2,68 +2,231 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#2f5d62" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f4f4" />
     <title>diary-app</title>
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="editor-panel" aria-labelledby="app-title">
-        <div class="title-row">
-          <div>
-            <p class="eyebrow">diary-app</p>
-            <h1 id="app-title">今日の日記</h1>
-          </div>
-          <button id="installButton" class="icon-button" type="button" hidden title="インストール">
-            +
+      <section id="listView" class="app-view is-active" aria-labelledby="listTitle">
+        <header class="top-bar">
+          <button id="jumpCalendarButton" class="round-button" type="button" title="カレンダー">
+            <span class="calendar-icon" aria-hidden="true"></span>
           </button>
-        </div>
+          <h1 id="listTitle">日記</h1>
+          <button id="searchButton" class="round-button" type="button" title="検索">
+            <span class="search-icon" aria-hidden="true"></span>
+          </button>
+        </header>
 
-        <form id="diaryForm" class="diary-form">
-          <label>
-            日付
-            <input id="entryDate" name="entryDate" type="date" required />
-          </label>
-
-          <label>
-            タイトル
-            <input
-              id="entryTitle"
-              name="entryTitle"
-              type="text"
-              maxlength="60"
-              placeholder="一日の見出し"
-              required
-            />
-          </label>
-
-          <label>
-            本文
-            <textarea
-              id="entryBody"
-              name="entryBody"
-              rows="10"
-              placeholder="今日あったこと、感じたことを書いてください。"
-              required
-            ></textarea>
-          </label>
-
-          <div class="action-row">
-            <button type="submit">保存</button>
-            <button id="clearButton" class="secondary-button" type="button">新規</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="entries-panel" aria-labelledby="entries-title">
-        <div class="entries-header">
-          <h2 id="entries-title">保存した日記</h2>
+        <div id="searchPanel" class="search-panel" hidden>
           <input id="searchInput" type="search" placeholder="検索" aria-label="日記を検索" />
         </div>
-        <ul id="entryList" class="entry-list" aria-live="polite"></ul>
+
+        <section class="month-section" aria-label="日記リスト">
+          <h2 id="listMonthLabel"></h2>
+          <ul id="entryList" class="entry-list" aria-live="polite"></ul>
+        </section>
       </section>
+
+      <section id="calendarView" class="app-view" aria-labelledby="calendarTitle">
+        <header class="calendar-header">
+          <button id="prevMonthButton" class="flat-arrow" type="button" title="前の月">‹</button>
+          <h1 id="calendarTitle"></h1>
+          <button id="nextMonthButton" class="flat-arrow" type="button" title="次の月">›</button>
+          <button id="todayButton" class="today-button" type="button">今日</button>
+        </header>
+
+        <section class="calendar-shell" aria-label="月間カレンダー">
+          <div id="weekdayRow" class="weekday-row"></div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </section>
+
+        <section class="selected-day-section" aria-label="選択日の記録">
+          <h2 id="selectedDateHeading"></h2>
+          <ul id="calendarEntryList" class="entry-list compact" aria-live="polite"></ul>
+        </section>
+      </section>
+
+      <section id="settingsView" class="app-view" aria-labelledby="settingsTitle">
+        <header class="settings-header">
+          <h1 id="settingsTitle">設定</h1>
+        </header>
+
+        <div class="settings-stack">
+          <div class="settings-card single">
+            <button class="settings-row" type="button">
+              <span class="settings-symbol sparkle" aria-hidden="true">✦</span>
+              <span>プレミアムサービス</span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+
+          <div class="settings-card single">
+            <button class="settings-row" type="button">
+              <span class="settings-symbol cloud" aria-hidden="true"></span>
+              <span>iCloudバックアップ</span>
+              <span class="lock-icon" aria-hidden="true"></span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+
+          <div class="settings-card">
+            <button class="settings-row" type="button">
+              <span class="settings-symbol palette" aria-hidden="true"></span>
+              <span>テーマカラー</span>
+              <span class="chevron">›</span>
+            </button>
+            <button class="settings-row" type="button">
+              <span class="settings-symbol squares" aria-hidden="true"></span>
+              <span>アプリアイコン</span>
+              <span class="chevron">›</span>
+            </button>
+            <button class="settings-row" type="button">
+              <span class="settings-symbol letters" aria-hidden="true">AA</span>
+              <span>文字設定</span>
+              <span class="chevron">›</span>
+            </button>
+            <button class="settings-row" type="button">
+              <span class="settings-symbol letters small" aria-hidden="true">Aa</span>
+              <span>フォントスタイル</span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+
+          <div class="settings-card">
+            <label class="settings-row">
+              <span class="settings-symbol list-lines" aria-hidden="true"></span>
+              <span>リストの表示行数</span>
+              <select id="listRowsSetting">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+              </select>
+            </label>
+            <label class="settings-row">
+              <span class="settings-symbol mini-calendar" aria-hidden="true"></span>
+              <span>カレンダーの開始曜日</span>
+              <select id="weekStartSetting">
+                <option value="0" selected>日曜</option>
+                <option value="1">月曜</option>
+              </select>
+            </label>
+            <label class="settings-row">
+              <span class="settings-symbol alarm" aria-hidden="true"></span>
+              <span>リマインダーの通知</span>
+              <input id="reminderSetting" class="switch-input" type="checkbox" />
+              <span class="switch-ui" aria-hidden="true"></span>
+            </label>
+            <label class="settings-row">
+              <span class="settings-symbol lock" aria-hidden="true"></span>
+              <span>パスコードロック</span>
+              <input id="passcodeSetting" class="switch-input" type="checkbox" checked />
+              <span class="switch-ui" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="settings-card">
+            <button class="settings-row" type="button">
+              <span class="settings-symbol help" aria-hidden="true">?</span>
+              <span>ヘルプ／よくある質問</span>
+              <span class="chevron">›</span>
+            </button>
+            <button class="settings-row" type="button">
+              <span class="settings-symbol info" aria-hidden="true">i</span>
+              <span>アプリについて</span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+
+          <div class="settings-card">
+            <button class="settings-row" type="button">
+              <span class="settings-symbol book" aria-hidden="true">A</span>
+              <span>利用言語</span>
+              <span class="chevron">›</span>
+            </button>
+            <button class="settings-row" type="button">
+              <span class="settings-symbol export" aria-hidden="true">A</span>
+              <span>日記データの出力（PC閲覧用）</span>
+              <span class="lock-icon" aria-hidden="true"></span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+
+          <div class="settings-card danger-group">
+            <button id="deleteMonthButton" class="settings-row danger-text" type="button">
+              <span class="settings-symbol trash" aria-hidden="true"></span>
+              <span>一部データの削除</span>
+              <span class="chevron">›</span>
+            </button>
+            <button id="deleteAllButton" class="settings-row danger-text" type="button">
+              <span class="settings-symbol trash" aria-hidden="true"></span>
+              <span>全データの削除</span>
+              <span class="chevron">›</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <button id="composeButton" class="compose-button" type="button" title="日記を書く">
+        <span class="pencil-icon" aria-hidden="true"></span>
+      </button>
+
+      <aside class="ad-banner" aria-label="広告">
+        <div class="ad-thumb"></div>
+        <div>
+          <strong>Disney Solitaire</strong>
+          <span>PLAY NOW</span>
+        </div>
+        <button id="hideAdButton" type="button">× 非表示</button>
+      </aside>
+
+      <nav class="tab-bar" aria-label="画面切り替え">
+        <button class="tab-button is-active" type="button" data-view="list">
+          <span class="tab-icon list-tab" aria-hidden="true"></span>
+          <span>リスト</span>
+        </button>
+        <button class="tab-button" type="button" data-view="calendar">
+          <span class="tab-icon calendar-tab" aria-hidden="true"></span>
+          <span>カレンダー</span>
+        </button>
+        <button class="tab-button" type="button" data-view="settings">
+          <span class="tab-icon settings-tab" aria-hidden="true"></span>
+          <span>設定</span>
+        </button>
+      </nav>
+
+      <dialog id="editorDialog" class="editor-dialog" aria-labelledby="editorTitle">
+        <form id="diaryForm" class="diary-form" method="dialog">
+          <div class="dialog-header">
+            <button id="closeEditorButton" class="text-button" type="button">閉じる</button>
+            <h2 id="editorTitle">日記を書く</h2>
+            <button class="text-button accent-text" type="submit">保存</button>
+          </div>
+
+          <input id="entryDate" name="entryDate" type="date" required />
+          <input
+            id="entryTitle"
+            name="entryTitle"
+            type="text"
+            maxlength="60"
+            placeholder="タイトル"
+            required
+          />
+          <textarea
+            id="entryBody"
+            name="entryBody"
+            rows="10"
+            placeholder="今日のことを書く"
+            required
+          ></textarea>
+          <button id="deleteEntryButton" class="delete-entry-button" type="button" hidden>
+            この日記を削除
+          </button>
+        </form>
+      </dialog>
     </main>
 
     <script src="./app.js" defer></script>
