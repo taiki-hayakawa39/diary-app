@@ -42,10 +42,13 @@ const passcodeSetting = document.querySelector("#passcodeSetting");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
 const themeColorLabel = document.querySelector("#themeColorLabel");
+const textSettingLabel = document.querySelector("#textSettingLabel");
 const fontStyleLabel = document.querySelector("#fontStyleLabel");
 const themeColorRow = document.querySelector("#themeColorRow");
+const textSettingRow = document.querySelector("#textSettingRow");
 const fontStyleRow = document.querySelector("#fontStyleRow");
 const themeColorOptions = document.querySelector("#themeColorOptions");
+const textSettingOptions = document.querySelector("#textSettingOptions");
 const fontStyleOptions = document.querySelector("#fontStyleOptions");
 
 const STORAGE_KEY = "diary-app.entries";
@@ -81,6 +84,17 @@ const fontLabels = {
   serif: "明朝",
   rounded: "丸ゴシック",
   handwriting: "手書き風",
+};
+const textSizeLabels = {
+  small: "小さめ",
+  normal: "標準",
+  large: "大きめ",
+  xlarge: "特大",
+};
+const lineHeightLabels = {
+  compact: "せまい",
+  normal: "標準",
+  relaxed: "広め",
 };
 
 let currentView = ["list", "calendar", "settings"].includes(location.hash.slice(1))
@@ -141,6 +155,8 @@ function saveEntries(entries) {
 function loadSettings() {
   return {
     themeColor: "mint",
+    textSize: "normal",
+    lineHeight: "normal",
     fontStyle: "system",
     listRows: "4",
     weekStart: "0",
@@ -157,6 +173,8 @@ function saveSettings() {
 function applyAppearance() {
   document.body.dataset.theme = settings.themeColor;
   document.body.dataset.font = settings.fontStyle;
+  document.body.dataset.textSize = settings.textSize;
+  document.body.dataset.lineHeight = settings.lineHeight;
 }
 
 function getEntryForDate(dateKey) {
@@ -438,6 +456,9 @@ function renderCalendar() {
 
 function renderSettings() {
   themeColorLabel.textContent = themeLabels[settings.themeColor] || themeLabels.mint;
+  textSettingLabel.textContent = `${textSizeLabels[settings.textSize] || textSizeLabels.normal} / ${
+    lineHeightLabels[settings.lineHeight] || lineHeightLabels.normal
+  }`;
   fontStyleLabel.textContent = fontLabels[settings.fontStyle] || fontLabels.system;
   listRowsSetting.value = settings.listRows;
   weekStartSetting.value = settings.weekStart;
@@ -447,11 +468,18 @@ function renderSettings() {
   themeColorOptions.querySelectorAll("[data-theme]").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.theme === settings.themeColor);
   });
+  textSettingOptions.querySelectorAll("[data-text-size]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.textSize === settings.textSize);
+  });
+  textSettingOptions.querySelectorAll("[data-line-height]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.lineHeight === settings.lineHeight);
+  });
   fontStyleOptions.querySelectorAll("[data-font]").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.font === settings.fontStyle);
   });
 
   syncExpandableSetting(themeColorRow, themeColorOptions, expandedSetting === "theme");
+  syncExpandableSetting(textSettingRow, textSettingOptions, expandedSetting === "text");
   syncExpandableSetting(fontStyleRow, fontStyleOptions, expandedSetting === "font");
 }
 
@@ -630,6 +658,10 @@ themeColorRow.addEventListener("click", () => {
   toggleSettingPanel("theme");
 });
 
+textSettingRow.addEventListener("click", () => {
+  toggleSettingPanel("text");
+});
+
 fontStyleRow.addEventListener("click", () => {
   toggleSettingPanel("font");
 });
@@ -638,6 +670,17 @@ themeColorOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-theme]");
   if (!button) return;
   settings.themeColor = button.dataset.theme;
+  saveSettings();
+  render();
+});
+
+textSettingOptions.addEventListener("click", (event) => {
+  const textSizeButton = event.target.closest("[data-text-size]");
+  const lineHeightButton = event.target.closest("[data-line-height]");
+  if (!textSizeButton && !lineHeightButton) return;
+
+  if (textSizeButton) settings.textSize = textSizeButton.dataset.textSize;
+  if (lineHeightButton) settings.lineHeight = lineHeightButton.dataset.lineHeight;
   saveSettings();
   render();
 });

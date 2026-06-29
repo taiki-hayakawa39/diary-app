@@ -111,11 +111,35 @@
               <span>アプリアイコン</span>
               <span class="chevron">›</span>
             </button>
-            <button class="settings-row" type="button">
+            <button id="textSettingRow" class="settings-row expandable-row" type="button" aria-expanded="false">
               <span class="settings-symbol letters" aria-hidden="true">AA</span>
               <span>文字設定</span>
+              <span id="textSettingLabel" class="setting-value">標準</span>
               <span class="chevron">›</span>
             </button>
+            <div id="textSettingOptions" class="setting-options text-options" aria-label="文字設定" hidden>
+              <div class="option-group">
+                <p>文字サイズ</p>
+                <div class="segmented-options">
+                  <button type="button" data-text-size="small">小さめ</button>
+                  <button type="button" data-text-size="normal">標準</button>
+                  <button type="button" data-text-size="large">大きめ</button>
+                  <button type="button" data-text-size="xlarge">特大</button>
+                </div>
+              </div>
+              <div class="option-group">
+                <p>行間</p>
+                <div class="segmented-options">
+                  <button type="button" data-line-height="compact">せまい</button>
+                  <button type="button" data-line-height="normal">標準</button>
+                  <button type="button" data-line-height="relaxed">広め</button>
+                </div>
+              </div>
+              <div class="text-preview-box">
+                <strong>プレビュー</strong>
+                <span>今日のことを、少しずつ書き残していく。</span>
+              </div>
+            </div>
             <button id="fontStyleRow" class="settings-row expandable-row" type="button" aria-expanded="false">
               <span class="settings-symbol letters small" aria-hidden="true">Aa</span>
               <span>フォントスタイル</span>
