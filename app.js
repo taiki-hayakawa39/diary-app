@@ -43,6 +43,8 @@ const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
 const themeColorLabel = document.querySelector("#themeColorLabel");
 const fontStyleLabel = document.querySelector("#fontStyleLabel");
+const themeColorRow = document.querySelector("#themeColorRow");
+const fontStyleRow = document.querySelector("#fontStyleRow");
 const themeColorOptions = document.querySelector("#themeColorOptions");
 const fontStyleOptions = document.querySelector("#fontStyleOptions");
 
@@ -89,6 +91,7 @@ let visibleMonth = startOfMonth(fromDateKey(selectedDate));
 let editingId = null;
 let draftPhotos = [];
 let settings = loadSettings();
+let expandedSetting = null;
 
 function getToday() {
   return toDateKey(new Date());
@@ -447,6 +450,20 @@ function renderSettings() {
   fontStyleOptions.querySelectorAll("[data-font]").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.font === settings.fontStyle);
   });
+
+  syncExpandableSetting(themeColorRow, themeColorOptions, expandedSetting === "theme");
+  syncExpandableSetting(fontStyleRow, fontStyleOptions, expandedSetting === "font");
+}
+
+function syncExpandableSetting(row, options, isExpanded) {
+  row.setAttribute("aria-expanded", String(isExpanded));
+  row.querySelector(".chevron").textContent = isExpanded ? "⌄" : "›";
+  options.hidden = !isExpanded;
+}
+
+function toggleSettingPanel(panelName) {
+  expandedSetting = expandedSetting === panelName ? null : panelName;
+  renderSettings();
 }
 
 function render() {
@@ -607,6 +624,14 @@ reminderSetting.addEventListener("change", () => {
 passcodeSetting.addEventListener("change", () => {
   settings.passcode = passcodeSetting.checked;
   saveSettings();
+});
+
+themeColorRow.addEventListener("click", () => {
+  toggleSettingPanel("theme");
+});
+
+fontStyleRow.addEventListener("click", () => {
+  toggleSettingPanel("font");
 });
 
 themeColorOptions.addEventListener("click", (event) => {

@@ -703,6 +703,10 @@ textarea {
   padding: 12px 17px 16px 77px;
 }
 
+.setting-options[hidden] {
+  display: none !important;
+}
+
 .color-options {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
