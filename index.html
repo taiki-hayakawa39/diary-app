@@ -185,6 +185,15 @@
               </select>
             </label>
             <label class="settings-row">
+              <span class="settings-symbol mode-symbol" aria-hidden="true">•••</span>
+              <span>書き始めモード</span>
+              <select id="defaultModeSetting">
+                <option value="normal" selected>通常</option>
+                <option value="memory">思い出</option>
+                <option value="book">book</option>
+              </select>
+            </label>
+            <label class="settings-row">
               <span class="settings-symbol alarm" aria-hidden="true"></span>
               <span>リマインダーの通知</span>
               <input id="reminderSetting" class="switch-input" type="checkbox" />
@@ -269,13 +278,18 @@
               <h2 id="editorTitle"></h2>
               <p id="editorTimeLabel"></p>
             </div>
-            <button class="write-circle-button menu-button" type="button" title="メニュー">
+            <button id="modeMenuButton" class="write-circle-button menu-button" type="button" title="モード切り替え" aria-expanded="false">
               <span aria-hidden="true">•••</span>
             </button>
             <button id="saveEditorButton" class="write-circle-button save-circle-button" type="submit" title="保存">
               <span class="check-icon" aria-hidden="true"></span>
             </button>
           </header>
+          <div id="modeMenu" class="mode-menu" hidden>
+            <button type="button" data-mode="normal">通常</button>
+            <button type="button" data-mode="memory">思い出</button>
+            <button type="button" data-mode="book">book</button>
+          </div>
 
           <input id="entryDate" name="entryDate" type="date" required />
           <input
@@ -288,10 +302,36 @@
           />
           <textarea
             id="entryBody"
+            class="mode-field"
+            data-mode-field="normal"
             name="entryBody"
             rows="16"
             aria-label="日記本文"
           ></textarea>
+          <section class="mode-field mode-panel" data-mode-field="memory" hidden>
+            <label>
+              <span>相手のセリフ</span>
+              <textarea id="memoryQuote" rows="5" placeholder="相手が言ったこと"></textarea>
+            </label>
+            <label>
+              <span>自分がどう思っているか</span>
+              <textarea id="memoryFeeling" rows="8" placeholder="その言葉を聞いて感じたこと、考えたこと"></textarea>
+            </label>
+          </section>
+          <section class="mode-field mode-panel" data-mode-field="book" hidden>
+            <label>
+              <span>本の名前</span>
+              <input id="bookTitle" type="text" placeholder="本のタイトル" />
+            </label>
+            <label>
+              <span>印象的だった内容</span>
+              <textarea id="bookHighlight" rows="6" placeholder="心に残った一文や場面"></textarea>
+            </label>
+            <label>
+              <span>自分の感想</span>
+              <textarea id="bookThought" rows="7" placeholder="読んで感じたこと、考えたこと"></textarea>
+            </label>
+          </section>
           <input id="photoInput" class="visually-hidden" type="file" accept="image/*" multiple />
           <div id="photoPreviewList" class="photo-preview-list" aria-label="挿入した写真"></div>
           <div class="write-toolbox" aria-label="入力ツール">

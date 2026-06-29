@@ -25,9 +25,16 @@ const diaryForm = document.querySelector("#diaryForm");
 const closeEditorButton = document.querySelector("#closeEditorButton");
 const editorTitle = document.querySelector("#editorTitle");
 const editorTimeLabel = document.querySelector("#editorTimeLabel");
+const modeMenuButton = document.querySelector("#modeMenuButton");
+const modeMenu = document.querySelector("#modeMenu");
 const entryDate = document.querySelector("#entryDate");
 const entryTitle = document.querySelector("#entryTitle");
 const entryBody = document.querySelector("#entryBody");
+const memoryQuote = document.querySelector("#memoryQuote");
+const memoryFeeling = document.querySelector("#memoryFeeling");
+const bookTitle = document.querySelector("#bookTitle");
+const bookHighlight = document.querySelector("#bookHighlight");
+const bookThought = document.querySelector("#bookThought");
 const photoInput = document.querySelector("#photoInput");
 const photoPreviewList = document.querySelector("#photoPreviewList");
 const addPhotoButton = document.querySelector("#addPhotoButton");
@@ -35,6 +42,7 @@ const takePhotoButton = document.querySelector("#takePhotoButton");
 const deleteEntryButton = document.querySelector("#deleteEntryButton");
 const listRowsSetting = document.querySelector("#listRowsSetting");
 const weekStartSetting = document.querySelector("#weekStartSetting");
+const defaultModeSetting = document.querySelector("#defaultModeSetting");
 const reminderSetting = document.querySelector("#reminderSetting");
 const passcodeSetting = document.querySelector("#passcodeSetting");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
@@ -94,6 +102,11 @@ const lineHeightLabels = {
   normal: "標準",
   relaxed: "広め",
 };
+const modeLabels = {
+  normal: "通常",
+  memory: "思い出",
+  book: "book",
+};
 
 let currentView = ["list", "calendar", "settings"].includes(location.hash.slice(1))
   ? location.hash.slice(1)
@@ -102,6 +115,7 @@ let selectedDate = getToday();
 let visibleMonth = startOfMonth(fromDateKey(selectedDate));
 let editingId = null;
 let draftPhotos = [];
+let activeEntryMode = "normal";
 let settings = loadSettings();
 let expandedSetting = null;
 
@@ -156,6 +170,7 @@ function loadSettings() {
     textSize: "normal",
     lineHeight: "normal",
     fontStyle: "system",
+    defaultMode: "normal",
     listRows: "4",
     weekStart: "0",
     reminder: false,
@@ -220,6 +235,42 @@ function deriveTitle(body, fallbackDate) {
     .map((line) => line.trim())
     .find(Boolean);
   return (firstLine || `${formatEditorDate(fallbackDate)}の日記`).slice(0, 60);
+}
+
+function getEntryTitle(entry) {
+  if (entry.mode === "memory") {
+    return entry.title || "思い出メモ";
+  }
+  if (entry.mode === "book") {
+    return entry.book?.title || entry.title || "bookメモ";
+  }
+  return entry.title;
+}
+
+function getEntryPreview(entry) {
+  if (entry.mode === "memory") {
+    const quote = entry.memory?.quote ? `「${entry.memory.quote}」` : "";
+    const feeling = entry.memory?.feeling || "";
+    return [quote, feeling].filter(Boolean).join("\n");
+  }
+  if (entry.mode === "book") {
+    const highlight = entry.book?.highlight ? `印象的だった内容: ${entry.book.highlight}` : "";
+    const thought = entry.book?.thought ? `感想: ${entry.book.thought}` : "";
+    return [highlight, thought].filter(Boolean).join("\n");
+  }
+  return entry.body;
+}
+
+function getModeBody(mode) {
+  if (mode === "memory") {
+    return [memoryQuote.value.trim(), memoryFeeling.value.trim()].filter(Boolean).join("\n");
+  }
+  if (mode === "book") {
+    return [bookTitle.value.trim(), bookHighlight.value.trim(), bookThought.value.trim()]
+      .filter(Boolean)
+      .join("\n");
+  }
+  return entryBody.value.trim();
 }
 
 function readFileAsDataUrl(file) {
@@ -340,11 +391,11 @@ function createEntryCard(entry) {
 
   const title = document.createElement("p");
   title.className = "entry-title";
-  title.textContent = entry.title;
+  title.textContent = getEntryTitle(entry);
 
   const preview = document.createElement("p");
   preview.className = "entry-preview";
-  preview.textContent = entry.body;
+  preview.textContent = getEntryPreview(entry);
 
   const photos = Array.isArray(entry.photos) ? entry.photos : [];
   if (photos.length > 0) {
@@ -460,6 +511,7 @@ function renderSettings() {
   fontStyleLabel.textContent = fontLabels[settings.fontStyle] || fontLabels.system;
   listRowsSetting.value = settings.listRows;
   weekStartSetting.value = settings.weekStart;
+  defaultModeSetting.value = settings.defaultMode;
   reminderSetting.checked = settings.reminder;
   passcodeSetting.checked = settings.passcode;
 
@@ -479,6 +531,22 @@ function renderSettings() {
   syncExpandableSetting(themeColorRow, themeColorOptions, expandedSetting === "theme");
   syncExpandableSetting(textSettingRow, textSettingOptions, expandedSetting === "text");
   syncExpandableSetting(fontStyleRow, fontStyleOptions, expandedSetting === "font");
+}
+
+function setEntryMode(mode) {
+  activeEntryMode = modeLabels[mode] ? mode : "normal";
+  document.querySelectorAll("[data-mode-field]").forEach((field) => {
+    field.hidden = field.dataset.modeField !== activeEntryMode;
+  });
+  modeMenu.querySelectorAll("[data-mode]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.mode === activeEntryMode);
+  });
+}
+
+function toggleModeMenu(forceOpen = null) {
+  const nextOpen = forceOpen ?? modeMenu.hidden;
+  modeMenu.hidden = !nextOpen;
+  modeMenuButton.setAttribute("aria-expanded", String(nextOpen));
 }
 
 function syncExpandableSetting(row, options, isExpanded) {
@@ -503,14 +571,22 @@ function openEditor(entry = null, options = {}) {
   const targetEntry = options.blank ? null : entry || getEntryForDate(selectedDate);
   const dateKey = targetEntry?.date || selectedDate;
   const timestamp = targetEntry?.createdAt || targetEntry?.updatedAt || new Date().toISOString();
+  const mode = targetEntry?.mode || (options.blank ? settings.defaultMode : "normal");
   editingId = targetEntry?.id || null;
   entryDate.value = dateKey;
   entryTitle.value = targetEntry?.title || "";
-  entryBody.value = targetEntry?.body || "";
+  entryBody.value = mode === "normal" ? targetEntry?.body || "" : "";
+  memoryQuote.value = targetEntry?.memory?.quote || "";
+  memoryFeeling.value = targetEntry?.memory?.feeling || "";
+  bookTitle.value = targetEntry?.book?.title || "";
+  bookHighlight.value = targetEntry?.book?.highlight || "";
+  bookThought.value = targetEntry?.book?.thought || "";
   draftPhotos = Array.isArray(targetEntry?.photos) ? [...targetEntry.photos] : [];
   editorTitle.textContent = formatEditorDate(dateKey);
   editorTimeLabel.textContent = timeFormatter.format(new Date(timestamp));
   deleteEntryButton.hidden = !targetEntry;
+  setEntryMode(mode);
+  toggleModeMenu(false);
   renderPhotoPreviews();
 
   if (typeof editorDialog.showModal === "function") {
@@ -519,7 +595,11 @@ function openEditor(entry = null, options = {}) {
     editorDialog.setAttribute("open", "");
   }
 
-  requestAnimationFrame(() => entryBody.focus());
+  requestAnimationFrame(() => {
+    if (activeEntryMode === "memory") memoryQuote.focus();
+    else if (activeEntryMode === "book") bookTitle.focus();
+    else entryBody.focus();
+  });
 }
 
 function closeEditor() {
@@ -534,9 +614,11 @@ function saveEntry() {
   const entries = loadEntries();
   const now = new Date().toISOString();
   const dateKey = entryDate.value || selectedDate;
-  const body = entryBody.value.trim();
+  const body = getModeBody(activeEntryMode);
   if (!body && draftPhotos.length === 0) {
-    entryBody.focus();
+    if (activeEntryMode === "memory") memoryQuote.focus();
+    else if (activeEntryMode === "book") bookTitle.focus();
+    else entryBody.focus();
     return;
   }
 
@@ -547,8 +629,28 @@ function saveEntry() {
   const nextEntry = {
     id: existingEntry?.id || crypto.randomUUID(),
     date: dateKey,
-    title: entryTitle.value.trim() || deriveTitle(body, dateKey),
+    mode: activeEntryMode,
+    title:
+      entryTitle.value.trim() ||
+      (activeEntryMode === "book" ? bookTitle.value.trim() : "") ||
+      (activeEntryMode === "memory" ? "思い出メモ" : "") ||
+      deriveTitle(body, dateKey),
     body,
+    memory:
+      activeEntryMode === "memory"
+        ? {
+            quote: memoryQuote.value.trim(),
+            feeling: memoryFeeling.value.trim(),
+          }
+        : undefined,
+    book:
+      activeEntryMode === "book"
+        ? {
+            title: bookTitle.value.trim(),
+            highlight: bookHighlight.value.trim(),
+            thought: bookThought.value.trim(),
+          }
+        : undefined,
     photos: draftPhotos,
     createdAt: existingEntry?.createdAt || now,
     updatedAt: now,
@@ -598,6 +700,17 @@ composeButton.addEventListener("click", () => openEditor(null, { blank: true }))
 
 closeEditorButton.addEventListener("click", closeEditor);
 
+modeMenuButton.addEventListener("click", () => {
+  toggleModeMenu();
+});
+
+modeMenu.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-mode]");
+  if (!button) return;
+  setEntryMode(button.dataset.mode);
+  toggleModeMenu(false);
+});
+
 addPhotoButton.addEventListener("click", () => {
   photoInput.removeAttribute("capture");
   photoInput.click();
@@ -636,6 +749,12 @@ weekStartSetting.addEventListener("change", () => {
   settings.weekStart = weekStartSetting.value;
   saveSettings();
   render();
+});
+
+defaultModeSetting.addEventListener("change", () => {
+  settings.defaultMode = defaultModeSetting.value;
+  saveSettings();
+  renderSettings();
 });
 
 reminderSetting.addEventListener("change", () => {
