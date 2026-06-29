@@ -74,11 +74,38 @@
           </div>
 
           <div class="settings-card">
-            <button class="settings-row" type="button">
+            <button id="themeColorRow" class="settings-row expandable-row" type="button" aria-expanded="true">
               <span class="settings-symbol palette" aria-hidden="true"></span>
               <span>テーマカラー</span>
-              <span class="chevron">›</span>
+              <span id="themeColorLabel" class="setting-value">ミント</span>
+              <span class="chevron">⌄</span>
             </button>
+            <div id="themeColorOptions" class="setting-options color-options" aria-label="テーマカラー">
+              <button class="color-choice" type="button" data-theme="mint">
+                <span class="color-dot mint-dot" aria-hidden="true"></span>
+                <span>ミント</span>
+              </button>
+              <button class="color-choice" type="button" data-theme="sakura">
+                <span class="color-dot sakura-dot" aria-hidden="true"></span>
+                <span>さくら</span>
+              </button>
+              <button class="color-choice" type="button" data-theme="sky">
+                <span class="color-dot sky-dot" aria-hidden="true"></span>
+                <span>空</span>
+              </button>
+              <button class="color-choice" type="button" data-theme="lemon">
+                <span class="color-dot lemon-dot" aria-hidden="true"></span>
+                <span>レモン</span>
+              </button>
+              <button class="color-choice" type="button" data-theme="lavender">
+                <span class="color-dot lavender-dot" aria-hidden="true"></span>
+                <span>ラベンダー</span>
+              </button>
+              <button class="color-choice" type="button" data-theme="mono">
+                <span class="color-dot mono-dot" aria-hidden="true"></span>
+                <span>モノクロ</span>
+              </button>
+            </div>
             <button class="settings-row" type="button">
               <span class="settings-symbol squares" aria-hidden="true"></span>
               <span>アプリアイコン</span>
@@ -89,11 +116,30 @@
               <span>文字設定</span>
               <span class="chevron">›</span>
             </button>
-            <button class="settings-row" type="button">
+            <button id="fontStyleRow" class="settings-row expandable-row" type="button" aria-expanded="true">
               <span class="settings-symbol letters small" aria-hidden="true">Aa</span>
               <span>フォントスタイル</span>
-              <span class="chevron">›</span>
+              <span id="fontStyleLabel" class="setting-value">標準</span>
+              <span class="chevron">⌄</span>
             </button>
+            <div id="fontStyleOptions" class="setting-options font-options" aria-label="フォントスタイル">
+              <button class="font-choice" type="button" data-font="system">
+                <span class="font-sample system-font">Aa</span>
+                <span>標準</span>
+              </button>
+              <button class="font-choice" type="button" data-font="serif">
+                <span class="font-sample serif-font">Aa</span>
+                <span>明朝</span>
+              </button>
+              <button class="font-choice" type="button" data-font="rounded">
+                <span class="font-sample rounded-font">Aa</span>
+                <span>丸ゴシック</span>
+              </button>
+              <button class="font-choice" type="button" data-font="handwriting">
+                <span class="font-sample handwriting-font">Aa</span>
+                <span>手書き風</span>
+              </button>
+            </div>
           </div>
 
           <div class="settings-card">

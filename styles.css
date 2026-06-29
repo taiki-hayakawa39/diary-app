@@ -13,6 +13,12 @@
   --saturday: #2495d0;
   --shadow: 0 18px 42px rgba(0, 0, 0, 0.13);
   --tab-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --app-font:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 * {
@@ -41,12 +47,64 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
+  font-family: var(--app-font);
+}
+
+body[data-theme="sakura"] {
+  --bg: #f8f1f4;
+  --card: #f7eff2;
+  --accent: #ef8ca7;
+  --sunday: #e85c7a;
+  --saturday: #5b9fd7;
+}
+
+body[data-theme="sky"] {
+  --bg: #eef6fb;
+  --card: #edf6fb;
+  --accent: #4fa7df;
+  --sunday: #e95773;
+  --saturday: #2482c2;
+}
+
+body[data-theme="lemon"] {
+  --bg: #faf7e8;
+  --card: #f8f3d8;
+  --accent: #d9aa2c;
+  --sunday: #e65b5b;
+  --saturday: #328fbd;
+}
+
+body[data-theme="lavender"] {
+  --bg: #f3f0fa;
+  --card: #f0ecf9;
+  --accent: #9b86dc;
+  --sunday: #df6685;
+  --saturday: #557fc9;
+}
+
+body[data-theme="mono"] {
+  --bg: #f3f3f3;
+  --card: #eeeeee;
+  --accent: #555555;
+  --sunday: #777777;
+  --saturday: #777777;
+}
+
+body[data-font="serif"] {
+  --app-font: "Yu Mincho", "Hiragino Mincho ProN", "Times New Roman", serif;
+}
+
+body[data-font="rounded"] {
+  --app-font:
+    "Yu Gothic UI",
+    "Yu Gothic",
+    "Hiragino Maru Gothic ProN",
+    "Meiryo",
     sans-serif;
+}
+
+body[data-font="handwriting"] {
+  --app-font: "Comic Sans MS", "Yu Gothic", "Hiragino Sans", cursive;
 }
 
 button,
@@ -625,6 +683,106 @@ textarea {
   font-size: 1.1rem;
   outline: 0;
   text-align: right;
+}
+
+.setting-value {
+  color: #a9a9a9;
+  font-size: 0.96rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.expandable-row .chevron {
+  font-size: 1.8rem;
+}
+
+.setting-options {
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 17px 16px 77px;
+}
+
+.color-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.font-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.color-choice,
+.font-choice {
+  display: grid;
+  min-height: 70px;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: #f6f6f6;
+  color: #444444;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 6px;
+}
+
+.color-choice.is-selected,
+.font-choice.is-selected {
+  border-color: var(--accent);
+  background: rgba(70, 208, 205, 0.12);
+  color: var(--accent);
+}
+
+.color-dot {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.mint-dot {
+  background: #46d0cd;
+}
+
+.sakura-dot {
+  background: #ef8ca7;
+}
+
+.sky-dot {
+  background: #4fa7df;
+}
+
+.lemon-dot {
+  background: #d9aa2c;
+}
+
+.lavender-dot {
+  background: #9b86dc;
+}
+
+.mono-dot {
+  background: #555555;
+}
+
+.font-sample {
+  color: currentColor;
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.serif-font {
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.rounded-font {
+  font-family: "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.handwriting-font {
+  font-family: "Comic Sans MS", "Yu Gothic", cursive;
 }
 
 .switch-input {

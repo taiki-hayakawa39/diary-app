@@ -41,6 +41,10 @@ const reminderSetting = document.querySelector("#reminderSetting");
 const passcodeSetting = document.querySelector("#passcodeSetting");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
+const themeColorLabel = document.querySelector("#themeColorLabel");
+const fontStyleLabel = document.querySelector("#fontStyleLabel");
+const themeColorOptions = document.querySelector("#themeColorOptions");
+const fontStyleOptions = document.querySelector("#fontStyleOptions");
 
 const STORAGE_KEY = "diary-app.entries";
 const SETTINGS_KEY = "diary-app.settings";
@@ -62,6 +66,20 @@ const editorDateFormatter = new Intl.DateTimeFormat("ja-JP", {
   weekday: "short",
 });
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+const themeLabels = {
+  mint: "ミント",
+  sakura: "さくら",
+  sky: "空",
+  lemon: "レモン",
+  lavender: "ラベンダー",
+  mono: "モノクロ",
+};
+const fontLabels = {
+  system: "標準",
+  serif: "明朝",
+  rounded: "丸ゴシック",
+  handwriting: "手書き風",
+};
 
 let currentView = ["list", "calendar", "settings"].includes(location.hash.slice(1))
   ? location.hash.slice(1)
@@ -119,6 +137,8 @@ function saveEntries(entries) {
 
 function loadSettings() {
   return {
+    themeColor: "mint",
+    fontStyle: "system",
     listRows: "4",
     weekStart: "0",
     reminder: false,
@@ -129,6 +149,11 @@ function loadSettings() {
 
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function applyAppearance() {
+  document.body.dataset.theme = settings.themeColor;
+  document.body.dataset.font = settings.fontStyle;
 }
 
 function getEntryForDate(dateKey) {
@@ -409,13 +434,23 @@ function renderCalendar() {
 }
 
 function renderSettings() {
+  themeColorLabel.textContent = themeLabels[settings.themeColor] || themeLabels.mint;
+  fontStyleLabel.textContent = fontLabels[settings.fontStyle] || fontLabels.system;
   listRowsSetting.value = settings.listRows;
   weekStartSetting.value = settings.weekStart;
   reminderSetting.checked = settings.reminder;
   passcodeSetting.checked = settings.passcode;
+
+  themeColorOptions.querySelectorAll("[data-theme]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.theme === settings.themeColor);
+  });
+  fontStyleOptions.querySelectorAll("[data-font]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.font === settings.fontStyle);
+  });
 }
 
 function render() {
+  applyAppearance();
   renderList();
   renderCalendar();
   renderSettings();
@@ -572,6 +607,22 @@ reminderSetting.addEventListener("change", () => {
 passcodeSetting.addEventListener("change", () => {
   settings.passcode = passcodeSetting.checked;
   saveSettings();
+});
+
+themeColorOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-theme]");
+  if (!button) return;
+  settings.themeColor = button.dataset.theme;
+  saveSettings();
+  render();
+});
+
+fontStyleOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-font]");
+  if (!button) return;
+  settings.fontStyle = button.dataset.font;
+  saveSettings();
+  render();
 });
 
 deleteMonthButton.addEventListener("click", () => {
