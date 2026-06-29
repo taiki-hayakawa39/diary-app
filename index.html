@@ -230,13 +230,14 @@
             name="entryBody"
             rows="16"
             aria-label="日記本文"
-            required
           ></textarea>
+          <input id="photoInput" class="visually-hidden" type="file" accept="image/*" multiple />
+          <div id="photoPreviewList" class="photo-preview-list" aria-label="挿入した写真"></div>
           <div class="write-toolbox" aria-label="入力ツール">
-            <button type="button" title="画像を追加">
+            <button id="addPhotoButton" type="button" title="画像を追加">
               <span class="image-icon" aria-hidden="true"></span>
             </button>
-            <button type="button" title="写真を撮る">
+            <button id="takePhotoButton" type="button" title="写真を撮る">
               <span class="camera-icon" aria-hidden="true"></span>
             </button>
             <button type="button" title="元に戻す" disabled>

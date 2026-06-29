@@ -30,6 +30,10 @@ const editorTimeLabel = document.querySelector("#editorTimeLabel");
 const entryDate = document.querySelector("#entryDate");
 const entryTitle = document.querySelector("#entryTitle");
 const entryBody = document.querySelector("#entryBody");
+const photoInput = document.querySelector("#photoInput");
+const photoPreviewList = document.querySelector("#photoPreviewList");
+const addPhotoButton = document.querySelector("#addPhotoButton");
+const takePhotoButton = document.querySelector("#takePhotoButton");
 const deleteEntryButton = document.querySelector("#deleteEntryButton");
 const listRowsSetting = document.querySelector("#listRowsSetting");
 const weekStartSetting = document.querySelector("#weekStartSetting");
@@ -65,6 +69,7 @@ let currentView = ["list", "calendar", "settings"].includes(location.hash.slice(
 let selectedDate = getToday();
 let visibleMonth = startOfMonth(fromDateKey(selectedDate));
 let editingId = null;
+let draftPhotos = [];
 let settings = loadSettings();
 
 function getToday() {
@@ -173,6 +178,90 @@ function deriveTitle(body, fallbackDate) {
   return (firstLine || `${formatEditorDate(fallbackDate)}の日記`).slice(0, 60);
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(reader.result));
+    reader.addEventListener("error", () => reject(reader.error));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", reject);
+    image.src = dataUrl;
+  });
+}
+
+async function resizePhoto(file) {
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(dataUrl);
+  const maxSize = 1280;
+  const ratio = Math.min(1, maxSize / Math.max(image.width, image.height));
+  const width = Math.round(image.width * ratio);
+  const height = Math.round(image.height * ratio);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  canvas.width = width;
+  canvas.height = height;
+  context.drawImage(image, 0, 0, width, height);
+
+  return {
+    id: crypto.randomUUID(),
+    name: file.name,
+    src: canvas.toDataURL("image/jpeg", 0.82),
+    addedAt: new Date().toISOString(),
+  };
+}
+
+function renderPhotoPreviews() {
+  photoPreviewList.innerHTML = "";
+  photoPreviewList.hidden = draftPhotos.length === 0;
+
+  draftPhotos.forEach((photo) => {
+    const item = document.createElement("figure");
+    const image = document.createElement("img");
+    const removeButton = document.createElement("button");
+
+    item.className = "photo-preview-item";
+    image.src = photo.src;
+    image.alt = photo.name || "日記に挿入した写真";
+    removeButton.type = "button";
+    removeButton.className = "remove-photo-button";
+    removeButton.textContent = "×";
+    removeButton.title = "写真を削除";
+    removeButton.addEventListener("click", () => {
+      draftPhotos = draftPhotos.filter((itemPhoto) => itemPhoto.id !== photo.id);
+      renderPhotoPreviews();
+    });
+
+    item.append(image, removeButton);
+    photoPreviewList.append(item);
+  });
+}
+
+async function handlePhotoFiles(files) {
+  const imageFiles = [...files].filter((file) => file.type.startsWith("image/"));
+  if (imageFiles.length === 0) return;
+
+  addPhotoButton.disabled = true;
+  takePhotoButton.disabled = true;
+
+  try {
+    const photos = await Promise.all(imageFiles.map(resizePhoto));
+    draftPhotos = [...draftPhotos, ...photos].slice(0, 9);
+    renderPhotoPreviews();
+  } finally {
+    addPhotoButton.disabled = false;
+    takePhotoButton.disabled = false;
+    photoInput.value = "";
+  }
+}
+
 function createEntryCard(entry) {
   const item = document.createElement("li");
   const button = document.createElement("button");
@@ -213,8 +302,22 @@ function createEntryCard(entry) {
   preview.className = "entry-preview";
   preview.textContent = entry.body;
 
+  const photos = Array.isArray(entry.photos) ? entry.photos : [];
+  if (photos.length > 0) {
+    const strip = document.createElement("div");
+    strip.className = "entry-photo-strip";
+    photos.slice(0, 3).forEach((photo) => {
+      const image = document.createElement("img");
+      image.src = photo.src;
+      image.alt = photo.name || "日記の写真";
+      strip.append(image);
+    });
+    bodyBox.append(title, preview, strip);
+  } else {
+    bodyBox.append(title, preview);
+  }
+
   dateBox.append(weekday, day, time);
-  bodyBox.append(title, preview);
   button.append(dateBox, bodyBox);
   item.replaceChildren(button);
   return item;
@@ -326,9 +429,11 @@ function openEditor(entry = null, options = {}) {
   entryDate.value = dateKey;
   entryTitle.value = targetEntry?.title || "";
   entryBody.value = targetEntry?.body || "";
+  draftPhotos = Array.isArray(targetEntry?.photos) ? [...targetEntry.photos] : [];
   editorTitle.textContent = formatEditorDate(dateKey);
   editorTimeLabel.textContent = timeFormatter.format(new Date(timestamp));
   deleteEntryButton.hidden = !targetEntry;
+  renderPhotoPreviews();
 
   if (typeof editorDialog.showModal === "function") {
     editorDialog.showModal();
@@ -351,6 +456,12 @@ function saveEntry() {
   const entries = loadEntries();
   const now = new Date().toISOString();
   const dateKey = entryDate.value || selectedDate;
+  const body = entryBody.value.trim();
+  if (!body && draftPhotos.length === 0) {
+    entryBody.focus();
+    return;
+  }
+
   const existingEntry = editingId
     ? entries.find((entry) => entry.id === editingId)
     : entries.find((entry) => entry.date === dateKey);
@@ -358,8 +469,9 @@ function saveEntry() {
   const nextEntry = {
     id: existingEntry?.id || crypto.randomUUID(),
     date: dateKey,
-    title: entryTitle.value.trim() || deriveTitle(entryBody.value, dateKey),
-    body: entryBody.value.trim(),
+    title: entryTitle.value.trim() || deriveTitle(body, dateKey),
+    body,
+    photos: draftPhotos,
     createdAt: existingEntry?.createdAt || now,
     updatedAt: now,
   };
@@ -411,6 +523,20 @@ hideAdButton.addEventListener("click", () => {
 });
 
 closeEditorButton.addEventListener("click", closeEditor);
+
+addPhotoButton.addEventListener("click", () => {
+  photoInput.removeAttribute("capture");
+  photoInput.click();
+});
+
+takePhotoButton.addEventListener("click", () => {
+  photoInput.setAttribute("capture", "environment");
+  photoInput.click();
+});
+
+photoInput.addEventListener("change", () => {
+  handlePhotoFiles(photoInput.files);
+});
 
 diaryForm.addEventListener("submit", (event) => {
   event.preventDefault();

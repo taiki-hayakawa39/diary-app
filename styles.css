@@ -278,6 +278,19 @@ textarea {
   -webkit-line-clamp: var(--list-lines, 4);
 }
 
+.entry-photo-strip {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.entry-photo-strip img {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
 .empty-state {
   margin: 24px 10px;
   color: var(--muted);
@@ -942,6 +955,49 @@ body[data-view="settings"] .ad-banner {
 
 .diary-form textarea:focus {
   box-shadow: none;
+}
+
+.photo-preview-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 0 2px 178px;
+}
+
+.photo-preview-list:empty {
+  display: none;
+}
+
+.photo-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f0f0f0;
+}
+
+.photo-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-photo-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.58);
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .write-toolbox {
