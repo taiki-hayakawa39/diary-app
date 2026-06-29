@@ -20,8 +20,6 @@ const prevMonthButton = document.querySelector("#prevMonthButton");
 const nextMonthButton = document.querySelector("#nextMonthButton");
 const todayButton = document.querySelector("#todayButton");
 const composeButton = document.querySelector("#composeButton");
-const hideAdButton = document.querySelector("#hideAdButton");
-const adBanner = document.querySelector(".ad-banner");
 const editorDialog = document.querySelector("#editorDialog");
 const diaryForm = document.querySelector("#diaryForm");
 const closeEditorButton = document.querySelector("#closeEditorButton");
@@ -597,10 +595,6 @@ todayButton.addEventListener("click", () => {
 });
 
 composeButton.addEventListener("click", () => openEditor(null, { blank: true }));
-
-hideAdButton.addEventListener("click", () => {
-  adBanner.classList.add("is-hidden");
-});
 
 closeEditorButton.addEventListener("click", closeEditor);
 

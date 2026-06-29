@@ -166,7 +166,7 @@ textarea {
   background: var(--bg);
   padding:
     max(32px, env(safe-area-inset-top)) 11px
-    calc(164px + env(safe-area-inset-bottom));
+    calc(104px + env(safe-area-inset-bottom));
 }
 
 .app-view {
@@ -921,7 +921,7 @@ textarea {
 .compose-button {
   position: fixed;
   right: max(22px, calc((100vw - 430px) / 2 + 22px));
-  bottom: calc(118px + env(safe-area-inset-bottom));
+  bottom: calc(96px + env(safe-area-inset-bottom));
   z-index: 4;
   display: grid;
   width: 78px;
@@ -959,65 +959,6 @@ textarea {
   border-right: 13px solid #ffffff;
   border-bottom: 10px solid transparent;
   content: "";
-}
-
-.ad-banner {
-  position: fixed;
-  right: max(11px, calc((100vw - 430px) / 2 + 11px));
-  bottom: calc(86px + env(safe-area-inset-bottom));
-  left: max(44px, calc((100vw - 430px) / 2 + 44px));
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 12px;
-  align-items: center;
-  min-height: 55px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px;
-}
-
-.ad-banner.is-hidden {
-  display: none;
-}
-
-body[data-view="settings"] .ad-banner {
-  display: none;
-}
-
-.ad-thumb {
-  height: 49px;
-  background:
-    linear-gradient(135deg, #9d32c8, transparent 45%),
-    linear-gradient(45deg, #14bbcf, #b4d356);
-}
-
-.ad-banner strong {
-  display: block;
-  color: #111111;
-  font-size: 0.84rem;
-}
-
-.ad-banner span {
-  display: block;
-  width: min(100%, 158px);
-  margin-top: 5px;
-  border-radius: 999px;
-  background: #eceaf7;
-  color: #2181db;
-  font-size: 1rem;
-  font-weight: 900;
-  text-align: center;
-}
-
-.ad-banner button {
-  position: absolute;
-  right: 3px;
-  top: -29px;
-  border: 1px solid #999999;
-  background: #ffffff;
-  color: #8d8d8d;
-  font-size: 0.8rem;
-  padding: 2px 5px;
 }
 
 .tab-bar {
