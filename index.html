@@ -26,7 +26,12 @@
         </div>
 
         <section class="month-section" aria-label="日記リスト">
-          <h2 id="listMonthLabel"></h2>
+          <div class="month-section-header">
+            <h2 id="listMonthLabel"></h2>
+            <button id="listReviewButton" class="review-month-button" type="button">
+              今月を振り返る
+            </button>
+          </div>
           <ul id="entryList" class="entry-list" aria-live="polite"></ul>
         </section>
       </section>
@@ -45,7 +50,12 @@
         </section>
 
         <section class="selected-day-section" aria-label="選択日の記録">
-          <h2 id="selectedDateHeading"></h2>
+          <div class="month-section-header">
+            <h2 id="selectedDateHeading"></h2>
+            <button id="calendarReviewButton" class="review-month-button" type="button">
+              今月を振り返る
+            </button>
+          </div>
           <ul id="calendarEntryList" class="entry-list compact" aria-live="polite"></ul>
         </section>
       </section>
@@ -334,6 +344,10 @@
           </section>
           <input id="photoInput" class="visually-hidden" type="file" accept="image/*" multiple />
           <div id="photoPreviewList" class="photo-preview-list" aria-label="挿入した写真"></div>
+          <button id="addPhotoTileButton" class="photo-add-tile" type="button">
+            <span class="image-icon" aria-hidden="true"></span>
+            <span>写真を追加</span>
+          </button>
           <div class="write-toolbox" aria-label="入力ツール">
             <button id="addPhotoButton" type="button" title="画像を追加">
               <span class="image-icon" aria-hidden="true"></span>
@@ -352,6 +366,47 @@
             この日記を削除
           </button>
         </form>
+      </dialog>
+
+      <dialog id="reviewDialog" class="review-dialog" aria-labelledby="reviewTitle">
+        <section class="review-shell">
+          <header class="review-header">
+            <button id="closeReviewButton" class="review-close-button" type="button" title="閉じる">
+              ×
+            </button>
+            <div>
+              <p>monthly review</p>
+              <h2 id="reviewTitle"></h2>
+            </div>
+          </header>
+
+          <div id="reviewEmptyState" class="review-empty-state" hidden>
+            この月の日記はありません。
+          </div>
+
+          <article id="reviewSlide" class="review-slide" hidden>
+            <div id="reviewPhotoFrame" class="review-photo-frame" hidden>
+              <img id="reviewPhoto" alt="振り返り写真" />
+            </div>
+            <div class="review-slide-text">
+              <p id="reviewDate" class="review-date"></p>
+              <h3 id="reviewSlideTitle"></h3>
+              <p id="reviewSlideBody"></p>
+            </div>
+          </article>
+
+          <footer class="review-controls">
+            <div class="review-progress-track" aria-hidden="true">
+              <div id="reviewProgressBar" class="review-progress-bar"></div>
+            </div>
+            <div class="review-control-row">
+              <button id="prevReviewButton" type="button">前へ</button>
+              <button id="playReviewButton" class="review-play-button" type="button">再生</button>
+              <button id="nextReviewButton" type="button">次へ</button>
+            </div>
+            <p id="reviewCounter" class="review-counter"></p>
+          </footer>
+        </section>
       </dialog>
     </main>
 

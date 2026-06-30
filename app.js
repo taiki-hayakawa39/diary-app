@@ -10,12 +10,14 @@ const searchButton = document.querySelector("#searchButton");
 const searchPanel = document.querySelector("#searchPanel");
 const searchInput = document.querySelector("#searchInput");
 const listMonthLabel = document.querySelector("#listMonthLabel");
+const listReviewButton = document.querySelector("#listReviewButton");
 const entryList = document.querySelector("#entryList");
 const calendarEntryList = document.querySelector("#calendarEntryList");
 const calendarTitle = document.querySelector("#calendarTitle");
 const calendarGrid = document.querySelector("#calendarGrid");
 const weekdayRow = document.querySelector("#weekdayRow");
 const selectedDateHeading = document.querySelector("#selectedDateHeading");
+const calendarReviewButton = document.querySelector("#calendarReviewButton");
 const prevMonthButton = document.querySelector("#prevMonthButton");
 const nextMonthButton = document.querySelector("#nextMonthButton");
 const todayButton = document.querySelector("#todayButton");
@@ -37,6 +39,7 @@ const bookHighlight = document.querySelector("#bookHighlight");
 const bookThought = document.querySelector("#bookThought");
 const photoInput = document.querySelector("#photoInput");
 const photoPreviewList = document.querySelector("#photoPreviewList");
+const addPhotoTileButton = document.querySelector("#addPhotoTileButton");
 const addPhotoButton = document.querySelector("#addPhotoButton");
 const takePhotoButton = document.querySelector("#takePhotoButton");
 const deleteEntryButton = document.querySelector("#deleteEntryButton");
@@ -47,6 +50,21 @@ const reminderSetting = document.querySelector("#reminderSetting");
 const passcodeSetting = document.querySelector("#passcodeSetting");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
+const reviewDialog = document.querySelector("#reviewDialog");
+const closeReviewButton = document.querySelector("#closeReviewButton");
+const reviewTitle = document.querySelector("#reviewTitle");
+const reviewEmptyState = document.querySelector("#reviewEmptyState");
+const reviewSlide = document.querySelector("#reviewSlide");
+const reviewPhotoFrame = document.querySelector("#reviewPhotoFrame");
+const reviewPhoto = document.querySelector("#reviewPhoto");
+const reviewDate = document.querySelector("#reviewDate");
+const reviewSlideTitle = document.querySelector("#reviewSlideTitle");
+const reviewSlideBody = document.querySelector("#reviewSlideBody");
+const reviewProgressBar = document.querySelector("#reviewProgressBar");
+const prevReviewButton = document.querySelector("#prevReviewButton");
+const playReviewButton = document.querySelector("#playReviewButton");
+const nextReviewButton = document.querySelector("#nextReviewButton");
+const reviewCounter = document.querySelector("#reviewCounter");
 const themeColorLabel = document.querySelector("#themeColorLabel");
 const textSettingLabel = document.querySelector("#textSettingLabel");
 const fontStyleLabel = document.querySelector("#fontStyleLabel");
@@ -116,6 +134,9 @@ let visibleMonth = startOfMonth(fromDateKey(selectedDate));
 let editingId = null;
 let draftPhotos = [];
 let activeEntryMode = "normal";
+let reviewSlides = [];
+let reviewSlideIndex = 0;
+let reviewTimer = null;
 let settings = loadSettings();
 let expandedSetting = null;
 
@@ -273,6 +294,111 @@ function getModeBody(mode) {
   return entryBody.value.trim();
 }
 
+function getVisibleMonthKey() {
+  return `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getMonthEntries() {
+  const monthKey = getVisibleMonthKey();
+  return loadEntries()
+    .filter((entry) => entry.date.startsWith(monthKey))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.updatedAt.localeCompare(b.updatedAt));
+}
+
+function buildReviewSlides() {
+  return getMonthEntries().map((entry) => {
+    const photos = Array.isArray(entry.photos) ? entry.photos : [];
+    return {
+      date: fullDateFormatter.format(fromDateKey(entry.date)),
+      title: getEntryTitle(entry),
+      body: getEntryPreview(entry) || "写真だけの日記",
+      photo: photos[0] || null,
+    };
+  });
+}
+
+function stopReviewPlayback() {
+  if (reviewTimer) {
+    clearInterval(reviewTimer);
+    reviewTimer = null;
+  }
+  playReviewButton.textContent = "再生";
+}
+
+function renderReviewSlide() {
+  const hasSlides = reviewSlides.length > 0;
+  reviewEmptyState.hidden = hasSlides;
+  reviewSlide.hidden = !hasSlides;
+  prevReviewButton.disabled = !hasSlides;
+  playReviewButton.disabled = !hasSlides;
+  nextReviewButton.disabled = !hasSlides;
+
+  if (!hasSlides) {
+    reviewProgressBar.style.width = "0%";
+    reviewCounter.textContent = "";
+    reviewPhotoFrame.hidden = true;
+    return;
+  }
+
+  const slide = reviewSlides[reviewSlideIndex];
+  reviewDate.textContent = slide.date;
+  reviewSlideTitle.textContent = slide.title;
+  reviewSlideBody.textContent = slide.body;
+  reviewCounter.textContent = `${reviewSlideIndex + 1} / ${reviewSlides.length}`;
+  reviewProgressBar.style.width = `${((reviewSlideIndex + 1) / reviewSlides.length) * 100}%`;
+
+  if (slide.photo) {
+    reviewPhoto.src = slide.photo.src;
+    reviewPhoto.alt = slide.photo.name || "振り返り写真";
+    reviewPhotoFrame.hidden = false;
+  } else {
+    reviewPhoto.removeAttribute("src");
+    reviewPhotoFrame.hidden = true;
+  }
+}
+
+function moveReviewSlide(amount) {
+  if (reviewSlides.length === 0) return;
+  reviewSlideIndex = (reviewSlideIndex + amount + reviewSlides.length) % reviewSlides.length;
+  renderReviewSlide();
+}
+
+function toggleReviewPlayback() {
+  if (reviewSlides.length === 0) return;
+  if (reviewTimer) {
+    stopReviewPlayback();
+    return;
+  }
+
+  playReviewButton.textContent = "停止";
+  reviewTimer = setInterval(() => {
+    moveReviewSlide(1);
+  }, 3200);
+}
+
+function openMonthlyReview() {
+  reviewSlides = buildReviewSlides();
+  reviewSlideIndex = 0;
+  reviewTitle.textContent = `${monthFormatter.format(visibleMonth)}の振り返り`;
+  stopReviewPlayback();
+  renderReviewSlide();
+
+  if (typeof reviewDialog.showModal === "function") {
+    reviewDialog.showModal();
+  } else {
+    reviewDialog.setAttribute("open", "");
+  }
+}
+
+function closeMonthlyReview() {
+  stopReviewPlayback();
+  if (typeof reviewDialog.close === "function") {
+    reviewDialog.close();
+  } else {
+    reviewDialog.removeAttribute("open");
+  }
+}
+
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -420,7 +546,7 @@ function createEntryCard(entry) {
 
 function renderList() {
   const entries = getSortedEntries();
-  const visibleMonthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}`;
+  const visibleMonthKey = getVisibleMonthKey();
   const monthEntries = entries.filter((entry) => entry.date.startsWith(visibleMonthKey));
 
   listMonthLabel.textContent = monthFormatter.format(visibleMonth);
@@ -696,6 +822,19 @@ todayButton.addEventListener("click", () => {
   render();
 });
 
+listReviewButton.addEventListener("click", openMonthlyReview);
+calendarReviewButton.addEventListener("click", openMonthlyReview);
+closeReviewButton.addEventListener("click", closeMonthlyReview);
+prevReviewButton.addEventListener("click", () => {
+  stopReviewPlayback();
+  moveReviewSlide(-1);
+});
+nextReviewButton.addEventListener("click", () => {
+  stopReviewPlayback();
+  moveReviewSlide(1);
+});
+playReviewButton.addEventListener("click", toggleReviewPlayback);
+
 composeButton.addEventListener("click", () => openEditor(null, { blank: true }));
 
 closeEditorButton.addEventListener("click", closeEditor);
@@ -712,6 +851,11 @@ modeMenu.addEventListener("click", (event) => {
 });
 
 addPhotoButton.addEventListener("click", () => {
+  photoInput.removeAttribute("capture");
+  photoInput.click();
+});
+
+addPhotoTileButton.addEventListener("click", () => {
   photoInput.removeAttribute("capture");
   photoInput.click();
 });
