@@ -29,6 +29,7 @@ const editorTitle = document.querySelector("#editorTitle");
 const editorTimeLabel = document.querySelector("#editorTimeLabel");
 const modeMenuButton = document.querySelector("#modeMenuButton");
 const modeMenu = document.querySelector("#modeMenu");
+const saveEditorButton = document.querySelector("#saveEditorButton");
 const entryDate = document.querySelector("#entryDate");
 const entryTitle = document.querySelector("#entryTitle");
 const entryBody = document.querySelector("#entryBody");
@@ -326,6 +327,14 @@ function getModeBody(mode) {
   return entryBody.value.trim();
 }
 
+function hasDraftContent() {
+  return Boolean(getModeBody(activeEntryMode)) || draftPhotos.length > 0;
+}
+
+function updateSaveButtonState() {
+  saveEditorButton.classList.toggle("is-ready", hasDraftContent());
+}
+
 function getVisibleMonthKey() {
   return `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}`;
 }
@@ -510,6 +519,7 @@ function renderPhotoPreviews() {
     removeButton.addEventListener("click", () => {
       draftPhotos = draftPhotos.filter((itemPhoto) => itemPhoto.id !== photo.id);
       renderPhotoPreviews();
+      updateSaveButtonState();
     });
 
     reviewToggle.className = "photo-review-toggle";
@@ -522,6 +532,7 @@ function renderPhotoPreviews() {
           ? { ...itemPhoto, includeInReview: reviewToggleInput.checked }
           : itemPhoto,
       );
+      updateSaveButtonState();
     });
 
     reviewToggle.append(reviewToggleInput, reviewToggleText);
@@ -541,6 +552,7 @@ async function handlePhotoFiles(files) {
     const photos = await Promise.all(imageFiles.map(resizePhoto));
     draftPhotos = [...draftPhotos, ...photos].slice(0, 9);
     renderPhotoPreviews();
+    updateSaveButtonState();
   } finally {
     addPhotoButton.disabled = false;
     takePhotoButton.disabled = false;
@@ -780,6 +792,7 @@ function setEntryMode(mode) {
   modeMenu.querySelectorAll("[data-mode]").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.mode === activeEntryMode);
   });
+  updateSaveButtonState();
 }
 
 function toggleModeMenu(forceOpen = null) {
@@ -827,6 +840,7 @@ function openEditor(entry = null, options = {}) {
   setEntryMode(mode);
   toggleModeMenu(false);
   renderPhotoPreviews();
+  updateSaveButtonState();
 
   if (typeof editorDialog.showModal === "function") {
     editorDialog.showModal();
@@ -983,6 +997,10 @@ takePhotoButton.addEventListener("click", () => {
 
 photoInput.addEventListener("change", () => {
   handlePhotoFiles(photoInput.files);
+});
+
+[entryBody, memoryQuote, memoryFeeling, bookTitle, bookHighlight, bookThought].forEach((field) => {
+  field.addEventListener("input", updateSaveButtonState);
 });
 
 diaryForm.addEventListener("submit", (event) => {

@@ -1279,6 +1279,17 @@ textarea {
 
 .save-circle-button {
   background: #e5e5e5;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.save-circle-button.is-ready {
+  background: var(--accent);
+}
+
+.save-circle-button.is-ready:active {
+  transform: scale(0.96);
 }
 
 .check-icon {
