@@ -48,6 +48,12 @@ const weekStartSetting = document.querySelector("#weekStartSetting");
 const defaultModeSetting = document.querySelector("#defaultModeSetting");
 const reminderSetting = document.querySelector("#reminderSetting");
 const passcodeSetting = document.querySelector("#passcodeSetting");
+const photoReviewSetting = document.querySelector("#photoReviewSetting");
+const photoNoticeButton = document.querySelector("#photoNoticeButton");
+const photoAuditRow = document.querySelector("#photoAuditRow");
+const photoAuditOptions = document.querySelector("#photoAuditOptions");
+const photoAuditCount = document.querySelector("#photoAuditCount");
+const photoAuditList = document.querySelector("#photoAuditList");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
 const reviewDialog = document.querySelector("#reviewDialog");
@@ -164,8 +170,22 @@ function shiftMonth(date, amount) {
   return new Date(date.getFullYear(), date.getMonth() + amount, 1);
 }
 
+function normalizePhoto(photo) {
+  return {
+    ...photo,
+    includeInReview: photo.includeInReview !== false,
+  };
+}
+
+function normalizeEntry(entry) {
+  return {
+    ...entry,
+    photos: Array.isArray(entry.photos) ? entry.photos.map(normalizePhoto) : [],
+  };
+}
+
 function loadEntries() {
-  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").map(normalizeEntry);
   if (entries.length > 0) return entries;
 
   const now = new Date();
@@ -182,7 +202,7 @@ function loadEntries() {
 }
 
 function saveEntries(entries) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.map(normalizeEntry)));
 }
 
 function loadSettings() {
@@ -196,6 +216,8 @@ function loadSettings() {
     weekStart: "0",
     reminder: false,
     passcode: true,
+    photoSafetyNoticeSeen: false,
+    usePhotosInReview: true,
     ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"),
   };
 }
@@ -216,7 +238,10 @@ function getEntryForDate(dateKey) {
 }
 
 function deleteEntryById(entryId, entryTitle) {
-  if (!confirm(`「${entryTitle}」を削除しますか？`)) return;
+  const targetEntry = loadEntries().find((entry) => entry.id === entryId);
+  const photoCount = targetEntry?.photos?.length || 0;
+  const photoMessage = photoCount > 0 ? `\n写真${photoCount}枚も一緒に削除されます。` : "";
+  if (!confirm(`「${entryTitle}」を削除しますか？${photoMessage}`)) return;
   saveEntries(loadEntries().filter((entry) => entry.id !== entryId));
   if (editingId === entryId) editingId = null;
   render();
@@ -314,7 +339,9 @@ function getMonthEntries() {
 
 function buildReviewSlides() {
   return getMonthEntries().map((entry) => {
-    const photos = Array.isArray(entry.photos) ? entry.photos : [];
+    const photos = settings.usePhotosInReview
+      ? (entry.photos || []).filter((photo) => photo.includeInReview !== false)
+      : [];
     return {
       date: fullDateFormatter.format(fromDateKey(entry.date)),
       title: getEntryTitle(entry),
@@ -442,8 +469,23 @@ async function resizePhoto(file) {
     id: crypto.randomUUID(),
     name: file.name,
     src: canvas.toDataURL("image/jpeg", 0.82),
+    includeInReview: true,
     addedAt: new Date().toISOString(),
   };
+}
+
+function showPhotoSafetyNotice() {
+  alert(
+    "顔写真や他人が写った写真は、相手の気持ちやプライバシーに気をつけて保存してください。\n\nこのアプリでは写真を端末内に保存し、AIや外部サービスには送りません。",
+  );
+  settings.photoSafetyNoticeSeen = true;
+  saveSettings();
+  renderSettings();
+}
+
+function ensurePhotoSafetyNotice() {
+  if (settings.photoSafetyNoticeSeen) return;
+  showPhotoSafetyNotice();
 }
 
 function renderPhotoPreviews() {
@@ -454,6 +496,9 @@ function renderPhotoPreviews() {
     const item = document.createElement("figure");
     const image = document.createElement("img");
     const removeButton = document.createElement("button");
+    const reviewToggle = document.createElement("label");
+    const reviewToggleInput = document.createElement("input");
+    const reviewToggleText = document.createElement("span");
 
     item.className = "photo-preview-item";
     image.src = photo.src;
@@ -467,7 +512,20 @@ function renderPhotoPreviews() {
       renderPhotoPreviews();
     });
 
-    item.append(image, removeButton);
+    reviewToggle.className = "photo-review-toggle";
+    reviewToggleInput.type = "checkbox";
+    reviewToggleInput.checked = photo.includeInReview !== false;
+    reviewToggleText.textContent = "振り返り";
+    reviewToggleInput.addEventListener("change", () => {
+      draftPhotos = draftPhotos.map((itemPhoto) =>
+        itemPhoto.id === photo.id
+          ? { ...itemPhoto, includeInReview: reviewToggleInput.checked }
+          : itemPhoto,
+      );
+    });
+
+    reviewToggle.append(reviewToggleInput, reviewToggleText);
+    item.append(image, removeButton, reviewToggle);
     photoPreviewList.append(item);
   });
 }
@@ -652,6 +710,7 @@ function renderCalendar() {
 }
 
 function renderSettings() {
+  const entriesWithPhotos = loadEntries().filter((entry) => entry.photos.length > 0);
   themeColorLabel.textContent = themeLabels[settings.themeColor] || themeLabels.mint;
   textSettingLabel.textContent = `${textSizeLabels[settings.textSize] || textSizeLabels.normal} / ${
     lineHeightLabels[settings.lineHeight] || lineHeightLabels.normal
@@ -662,6 +721,9 @@ function renderSettings() {
   defaultModeSetting.value = settings.defaultMode;
   reminderSetting.checked = settings.reminder;
   passcodeSetting.checked = settings.passcode;
+  photoReviewSetting.checked = settings.usePhotosInReview;
+  photoAuditCount.textContent = `${entriesWithPhotos.length}件`;
+  photoAuditList.innerHTML = "";
 
   themeColorOptions.querySelectorAll("[data-theme]").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.theme === settings.themeColor);
@@ -679,6 +741,35 @@ function renderSettings() {
   syncExpandableSetting(themeColorRow, themeColorOptions, expandedSetting === "theme");
   syncExpandableSetting(textSettingRow, textSettingOptions, expandedSetting === "text");
   syncExpandableSetting(fontStyleRow, fontStyleOptions, expandedSetting === "font");
+  syncExpandableSetting(photoAuditRow, photoAuditOptions, expandedSetting === "photos");
+
+  if (entriesWithPhotos.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "photo-audit-empty";
+    empty.textContent = "写真つきの日記はまだありません。";
+    photoAuditList.append(empty);
+  } else {
+    entriesWithPhotos.forEach((entry) => {
+      const item = document.createElement("button");
+      const date = document.createElement("span");
+      const title = document.createElement("strong");
+      const count = document.createElement("span");
+
+      item.type = "button";
+      item.className = "photo-audit-item";
+      date.textContent = fullDateFormatter.format(fromDateKey(entry.date));
+      title.textContent = getEntryTitle(entry);
+      count.textContent = `写真${entry.photos.length}枚`;
+      item.addEventListener("click", () => {
+        selectedDate = entry.date;
+        visibleMonth = startOfMonth(fromDateKey(entry.date));
+        openEditor(entry);
+      });
+
+      item.append(date, title, count);
+      photoAuditList.append(item);
+    });
+  }
 }
 
 function setEntryMode(mode) {
@@ -873,16 +964,19 @@ modeMenu.addEventListener("click", (event) => {
 });
 
 addPhotoButton.addEventListener("click", () => {
+  ensurePhotoSafetyNotice();
   photoInput.removeAttribute("capture");
   photoInput.click();
 });
 
 addPhotoTileButton.addEventListener("click", () => {
+  ensurePhotoSafetyNotice();
   photoInput.removeAttribute("capture");
   photoInput.click();
 });
 
 takePhotoButton.addEventListener("click", () => {
+  ensurePhotoSafetyNotice();
   photoInput.setAttribute("capture", "environment");
   photoInput.click();
 });
@@ -900,7 +994,9 @@ deleteEntryButton.addEventListener("click", () => {
   if (!editingId) return;
   const targetEntry = loadEntries().find((entry) => entry.id === editingId);
   const title = targetEntry ? getEntryTitle(targetEntry) : "この日記";
-  if (!confirm(`「${title}」を削除しますか？`)) return;
+  const photoCount = targetEntry?.photos?.length || 0;
+  const photoMessage = photoCount > 0 ? `\n写真${photoCount}枚も一緒に削除されます。` : "";
+  if (!confirm(`「${title}」を削除しますか？${photoMessage}`)) return;
   saveEntries(loadEntries().filter((entry) => entry.id !== editingId));
   editingId = null;
   closeEditor();
@@ -933,6 +1029,18 @@ reminderSetting.addEventListener("change", () => {
 passcodeSetting.addEventListener("change", () => {
   settings.passcode = passcodeSetting.checked;
   saveSettings();
+});
+
+photoReviewSetting.addEventListener("change", () => {
+  settings.usePhotosInReview = photoReviewSetting.checked;
+  saveSettings();
+  renderSettings();
+});
+
+photoNoticeButton.addEventListener("click", showPhotoSafetyNotice);
+
+photoAuditRow.addEventListener("click", () => {
+  toggleSettingPanel("photos");
 });
 
 themeColorRow.addEventListener("click", () => {
@@ -976,13 +1084,19 @@ fontStyleOptions.addEventListener("click", (event) => {
 
 deleteMonthButton.addEventListener("click", () => {
   const monthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}`;
-  if (!confirm(`${monthFormatter.format(visibleMonth)}の日記を削除しますか？`)) return;
-  saveEntries(loadEntries().filter((entry) => !entry.date.startsWith(monthKey)));
+  const entries = loadEntries();
+  const targetEntries = entries.filter((entry) => entry.date.startsWith(monthKey));
+  const photoCount = targetEntries.reduce((total, entry) => total + entry.photos.length, 0);
+  const photoMessage = photoCount > 0 ? `\n写真${photoCount}枚も一緒に削除されます。` : "";
+  if (!confirm(`${monthFormatter.format(visibleMonth)}の日記を削除しますか？${photoMessage}`)) return;
+  saveEntries(entries.filter((entry) => !entry.date.startsWith(monthKey)));
   render();
 });
 
 deleteAllButton.addEventListener("click", () => {
-  if (!confirm("すべての日記を削除しますか？")) return;
+  const photoCount = loadEntries().reduce((total, entry) => total + entry.photos.length, 0);
+  const photoMessage = photoCount > 0 ? `\n写真${photoCount}枚も一緒に削除されます。` : "";
+  if (!confirm(`すべての日記を削除しますか？${photoMessage}`)) return;
   saveEntries([]);
   render();
 });

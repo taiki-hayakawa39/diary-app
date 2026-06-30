@@ -604,6 +604,38 @@ textarea {
   font-weight: 800;
 }
 
+.photo-safe,
+.image-symbol {
+  width: 26px;
+  height: 22px;
+  border: 3px solid currentColor;
+  border-radius: 5px;
+}
+
+.photo-safe::before,
+.image-symbol::before {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.photo-safe::after {
+  position: absolute;
+  left: 4px;
+  bottom: -3px;
+  width: 14px;
+  height: 14px;
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  transform: rotate(45deg);
+  content: "";
+}
+
 .chevron {
   color: #b4b4b4;
   font-size: 2.4rem;
@@ -919,6 +951,61 @@ textarea {
 .text-preview-box span {
   font-size: var(--entry-text-size);
   line-height: var(--entry-line-height);
+}
+
+.photo-safety-note {
+  margin: 0;
+  border-radius: 16px;
+  background: #f6f6f6;
+  color: #666666;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.55;
+  padding: 13px 14px;
+}
+
+.photo-audit-list {
+  display: grid;
+  gap: 8px;
+}
+
+.photo-audit-empty {
+  margin: 0;
+  color: #8d8d8d;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.photo-audit-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  align-items: center;
+  border-radius: 16px;
+  background: #f6f6f6;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.photo-audit-item span:first-child {
+  grid-column: 1 / -1;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.photo-audit-item strong {
+  overflow: hidden;
+  color: #444444;
+  font-size: 0.98rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-audit-item span:last-child {
+  color: #9a9a9a;
+  font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .serif-font {
@@ -1321,6 +1408,29 @@ textarea {
   color: #ffffff;
   font-size: 1rem;
   line-height: 1;
+}
+
+.photo-review-toggle {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #333333;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.photo-review-toggle input {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--accent);
 }
 
 .photo-add-tile {

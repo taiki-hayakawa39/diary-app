@@ -218,6 +218,32 @@
           </div>
 
           <div class="settings-card">
+            <label class="settings-row">
+              <span class="settings-symbol photo-safe" aria-hidden="true"></span>
+              <span>振り返りで写真を使う</span>
+              <input id="photoReviewSetting" class="switch-input" type="checkbox" checked />
+              <span class="switch-ui" aria-hidden="true"></span>
+            </label>
+            <button id="photoNoticeButton" class="settings-row" type="button">
+              <span class="settings-symbol help" aria-hidden="true">?</span>
+              <span>顔写真の注意を再表示</span>
+              <span class="chevron">›</span>
+            </button>
+            <button id="photoAuditRow" class="settings-row expandable-row" type="button" aria-expanded="false">
+              <span class="settings-symbol image-symbol" aria-hidden="true"></span>
+              <span>写真つき日記を確認</span>
+              <span id="photoAuditCount" class="setting-value">0件</span>
+              <span class="chevron">›</span>
+            </button>
+            <div id="photoAuditOptions" class="setting-options photo-audit-options" aria-label="写真つき日記" hidden>
+              <p class="photo-safety-note">
+                写真は端末内に保存され、AIや外部サービスには送信しません。
+              </p>
+              <div id="photoAuditList" class="photo-audit-list"></div>
+            </div>
+          </div>
+
+          <div class="settings-card">
             <button class="settings-row" type="button">
               <span class="settings-symbol help" aria-hidden="true">?</span>
               <span>ヘルプ／よくある質問</span>
