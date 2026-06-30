@@ -215,6 +215,13 @@ function getEntryForDate(dateKey) {
   return loadEntries().find((entry) => entry.date === dateKey) || null;
 }
 
+function deleteEntryById(entryId, entryTitle) {
+  if (!confirm(`「${entryTitle}」を削除しますか？`)) return;
+  saveEntries(loadEntries().filter((entry) => entry.id !== entryId));
+  if (editingId === entryId) editingId = null;
+  render();
+}
+
 function getSortedEntries() {
   const query = searchInput.value.trim().toLowerCase();
   return loadEntries()
@@ -485,13 +492,17 @@ async function handlePhotoFiles(files) {
 
 function createEntryCard(entry) {
   const item = document.createElement("li");
-  const button = document.createElement("button");
+  const card = document.createElement("div");
+  const openButton = document.createElement("button");
+  const quickDeleteButton = document.createElement("button");
   const date = fromDateKey(entry.date);
+  const entryTitle = getEntryTitle(entry);
 
   item.className = "entry-item";
-  button.type = "button";
-  button.className = "entry-card";
-  button.addEventListener("click", () => {
+  card.className = "entry-card";
+  openButton.type = "button";
+  openButton.className = "entry-card-main";
+  openButton.addEventListener("click", () => {
     selectedDate = entry.date;
     visibleMonth = startOfMonth(date);
     openEditor(entry);
@@ -517,7 +528,7 @@ function createEntryCard(entry) {
 
   const title = document.createElement("p");
   title.className = "entry-title";
-  title.textContent = getEntryTitle(entry);
+  title.textContent = entryTitle;
 
   const preview = document.createElement("p");
   preview.className = "entry-preview";
@@ -539,8 +550,19 @@ function createEntryCard(entry) {
   }
 
   dateBox.append(weekday, day, time);
-  button.append(dateBox, bodyBox);
-  item.replaceChildren(button);
+  openButton.append(dateBox, bodyBox);
+
+  quickDeleteButton.type = "button";
+  quickDeleteButton.className = "entry-delete-quick-button";
+  quickDeleteButton.setAttribute("aria-label", "この日記を削除");
+  quickDeleteButton.title = "この日記を削除";
+  quickDeleteButton.textContent = "削除";
+  quickDeleteButton.addEventListener("click", () => {
+    deleteEntryById(entry.id, entryTitle);
+  });
+
+  card.append(openButton, quickDeleteButton);
+  item.replaceChildren(card);
   return item;
 }
 
@@ -876,8 +898,10 @@ diaryForm.addEventListener("submit", (event) => {
 
 deleteEntryButton.addEventListener("click", () => {
   if (!editingId) return;
-  const nextEntries = loadEntries().filter((entry) => entry.id !== editingId);
-  saveEntries(nextEntries);
+  const targetEntry = loadEntries().find((entry) => entry.id === editingId);
+  const title = targetEntry ? getEntryTitle(targetEntry) : "この日記";
+  if (!confirm(`「${title}」を削除しますか？`)) return;
+  saveEntries(loadEntries().filter((entry) => entry.id !== editingId));
   editingId = null;
   closeEditor();
   render();

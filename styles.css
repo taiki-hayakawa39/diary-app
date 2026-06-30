@@ -327,13 +327,20 @@ textarea {
 }
 
 .entry-card {
-  display: grid;
-  grid-template-columns: 74px 1fr;
+  position: relative;
   width: 100%;
   min-height: 112px;
   border-radius: 4px;
   background: #eeeeee;
   overflow: hidden;
+}
+
+.entry-card-main {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  width: 100%;
+  min-height: inherit;
+  background: transparent;
   text-align: left;
 }
 
@@ -365,7 +372,27 @@ textarea {
   display: grid;
   align-content: center;
   gap: 8px;
-  padding: 15px 14px;
+  padding: 15px 52px 15px 14px;
+}
+
+.entry-delete-quick-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  min-width: 44px;
+  height: 32px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(235, 59, 49, 0.09);
+  color: var(--danger);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.entry-delete-quick-button:active {
+  transform: scale(0.96);
 }
 
 .entry-title {
