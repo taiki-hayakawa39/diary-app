@@ -92,12 +92,20 @@
           </div>
 
           <div class="settings-card">
-            <button id="themeColorRow" class="settings-row expandable-row" type="button" data-setting-panel="theme" aria-expanded="false">
+            <label id="themeColorRow" class="settings-row native-select-row">
               <span class="settings-symbol palette" aria-hidden="true"></span>
               <span>テーマカラー</span>
               <span id="themeColorLabel" class="setting-value">ミント</span>
+              <select id="themeColorSetting" aria-label="テーマカラー">
+                <option value="mint">ミント</option>
+                <option value="sakura">さくら</option>
+                <option value="sky">空</option>
+                <option value="lemon">レモン</option>
+                <option value="lavender">ラベンダー</option>
+                <option value="mono">モノクロ</option>
+              </select>
               <span class="chevron">›</span>
-            </button>
+            </label>
             <div id="themeColorOptions" class="setting-options color-options" aria-label="テーマカラー" hidden>
               <button class="color-choice" type="button" data-theme="mint">
                 <span class="color-dot mint-dot" aria-hidden="true"></span>
@@ -158,12 +166,18 @@
                 <span>今日のことを、少しずつ書き残していく。</span>
               </div>
             </div>
-            <button id="fontStyleRow" class="settings-row expandable-row" type="button" data-setting-panel="font" aria-expanded="false">
+            <label id="fontStyleRow" class="settings-row native-select-row">
               <span class="settings-symbol letters small" aria-hidden="true">Aa</span>
               <span>フォントスタイル</span>
               <span id="fontStyleLabel" class="setting-value">標準</span>
+              <select id="fontStyleSetting" aria-label="フォントスタイル">
+                <option value="system">標準</option>
+                <option value="serif">明朝</option>
+                <option value="rounded">丸ゴシック</option>
+                <option value="handwriting">手書き風</option>
+              </select>
               <span class="chevron">›</span>
-            </button>
+            </label>
             <div id="fontStyleOptions" class="setting-options font-options" aria-label="フォントスタイル" hidden>
               <button class="font-choice" type="button" data-font="system">
                 <span class="font-sample system-font">Aa</span>

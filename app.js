@@ -80,6 +80,8 @@ const fontStyleLabel = document.querySelector("#fontStyleLabel");
 const themeColorRow = document.querySelector("#themeColorRow");
 const textSettingRow = document.querySelector("#textSettingRow");
 const fontStyleRow = document.querySelector("#fontStyleRow");
+const themeColorSetting = document.querySelector("#themeColorSetting");
+const fontStyleSetting = document.querySelector("#fontStyleSetting");
 const themeColorOptions = document.querySelector("#themeColorOptions");
 const textSettingOptions = document.querySelector("#textSettingOptions");
 const fontStyleOptions = document.querySelector("#fontStyleOptions");
@@ -203,6 +205,7 @@ function loadEntries() {
       date: getToday(),
       title: "日記始めてみる",
       body: "今日から日記をつけ始める。短くても、その日のことを残していく。",
+      photos: [],
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     },
@@ -729,12 +732,14 @@ function renderCalendar() {
 }
 
 function renderSettings() {
-  const entriesWithPhotos = loadEntries().filter((entry) => entry.photos.length > 0);
+  const entriesWithPhotos = loadEntries().filter((entry) => (entry.photos || []).length > 0);
   themeColorLabel.textContent = themeLabels[settings.themeColor] || themeLabels.mint;
   textSettingLabel.textContent = `${textSizeLabels[settings.textSize] || textSizeLabels.normal} / ${
     lineHeightLabels[settings.lineHeight] || lineHeightLabels.normal
   }`;
   fontStyleLabel.textContent = fontLabels[settings.fontStyle] || fontLabels.system;
+  if (themeColorSetting) themeColorSetting.value = settings.themeColor;
+  if (fontStyleSetting) fontStyleSetting.value = settings.fontStyle;
   listRowsSetting.value = settings.listRows;
   weekStartSetting.value = settings.weekStart;
   defaultModeSetting.value = settings.defaultMode;
@@ -1149,10 +1154,24 @@ if (dismissUpdateButton) {
   dismissUpdateButton.addEventListener("click", hideUpdateNotice);
 }
 
-bindSettingPanel(themeColorRow, "theme");
 bindSettingPanel(textSettingRow, "text");
-bindSettingPanel(fontStyleRow, "font");
 bindSettingPanel(photoAuditRow, "photos");
+
+if (themeColorSetting) {
+  themeColorSetting.addEventListener("change", () => {
+    settings.themeColor = themeColorSetting.value;
+    saveSettings();
+    render();
+  });
+}
+
+if (fontStyleSetting) {
+  fontStyleSetting.addEventListener("change", () => {
+    settings.fontStyle = fontStyleSetting.value;
+    saveSettings();
+    render();
+  });
+}
 
 themeColorOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-theme]");

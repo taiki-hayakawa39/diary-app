@@ -815,6 +815,19 @@ textarea {
   text-align: right;
 }
 
+.native-select-row {
+  position: relative;
+}
+
+.native-select-row select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .mode-symbol {
   letter-spacing: 2px;
 }
