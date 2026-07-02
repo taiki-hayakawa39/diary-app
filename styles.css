@@ -605,7 +605,8 @@ textarea {
 }
 
 .photo-safe,
-.image-symbol {
+.image-symbol,
+.update-symbol {
   width: 26px;
   height: 22px;
   border: 3px solid currentColor;
@@ -621,6 +622,25 @@ textarea {
   height: 9px;
   border-radius: 50%;
   background: currentColor;
+  content: "";
+}
+
+.update-symbol {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border-right-color: transparent;
+}
+
+.update-symbol::after {
+  position: absolute;
+  top: -3px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-top: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+  transform: rotate(25deg);
   content: "";
 }
 
@@ -1751,6 +1771,56 @@ textarea {
   font-size: 0.82rem;
   font-weight: 800;
   text-align: center;
+}
+
+.update-notice {
+  position: fixed;
+  right: max(16px, calc((100vw - 430px) / 2 + 16px));
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  left: max(16px, calc((100vw - 430px) / 2 + 16px));
+  z-index: 8;
+  display: grid;
+  grid-template-columns: 1fr auto 34px;
+  gap: 10px;
+  align-items: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--tab-shadow);
+  padding: 12px;
+}
+
+.update-notice div {
+  display: grid;
+  gap: 3px;
+}
+
+.update-notice strong {
+  font-size: 0.95rem;
+}
+
+.update-notice span {
+  color: #707070;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.update-notice button {
+  min-height: 38px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 900;
+  padding: 0 14px;
+}
+
+.update-notice .update-dismiss-button {
+  min-width: 34px;
+  padding: 0;
+  background: #eeeeee;
+  color: #777777;
+  font-size: 1.2rem;
 }
 
 @media (min-width: 700px) {

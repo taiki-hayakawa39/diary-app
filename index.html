@@ -270,6 +270,12 @@
               <span>利用言語</span>
               <span class="chevron">›</span>
             </button>
+            <button id="checkUpdateButton" class="settings-row" type="button">
+              <span class="settings-symbol update-symbol" aria-hidden="true"></span>
+              <span>アプリを更新</span>
+              <span id="updateStatusLabel" class="setting-value">確認</span>
+              <span class="chevron">›</span>
+            </button>
             <button class="settings-row" type="button">
               <span class="settings-symbol export" aria-hidden="true">A</span>
               <span>日記データの出力（PC閲覧用）</span>
@@ -442,6 +448,15 @@
           </footer>
         </section>
       </dialog>
+
+      <section id="updateNotice" class="update-notice" aria-live="polite" hidden>
+        <div>
+          <strong>新しい版があります</strong>
+          <span>更新すると最新の画面に切り替わります。</span>
+        </div>
+        <button id="reloadUpdateButton" type="button">更新</button>
+        <button id="dismissUpdateButton" class="update-dismiss-button" type="button" title="閉じる">×</button>
+      </section>
     </main>
 
     <script src="./app.js" defer></script>

@@ -55,6 +55,8 @@ const photoAuditRow = document.querySelector("#photoAuditRow");
 const photoAuditOptions = document.querySelector("#photoAuditOptions");
 const photoAuditCount = document.querySelector("#photoAuditCount");
 const photoAuditList = document.querySelector("#photoAuditList");
+const checkUpdateButton = document.querySelector("#checkUpdateButton");
+const updateStatusLabel = document.querySelector("#updateStatusLabel");
 const deleteMonthButton = document.querySelector("#deleteMonthButton");
 const deleteAllButton = document.querySelector("#deleteAllButton");
 const reviewDialog = document.querySelector("#reviewDialog");
@@ -81,6 +83,9 @@ const fontStyleRow = document.querySelector("#fontStyleRow");
 const themeColorOptions = document.querySelector("#themeColorOptions");
 const textSettingOptions = document.querySelector("#textSettingOptions");
 const fontStyleOptions = document.querySelector("#fontStyleOptions");
+const updateNotice = document.querySelector("#updateNotice");
+const reloadUpdateButton = document.querySelector("#reloadUpdateButton");
+const dismissUpdateButton = document.querySelector("#dismissUpdateButton");
 
 const STORAGE_KEY = "diary-app.entries";
 const SETTINGS_KEY = "diary-app.settings";
@@ -146,6 +151,8 @@ let reviewSlideIndex = 0;
 let reviewTimer = null;
 let settings = loadSettings();
 let expandedSetting = null;
+let waitingServiceWorker = null;
+let isReloadingForUpdate = false;
 
 function getToday() {
   return toDateKey(new Date());
@@ -812,6 +819,66 @@ function toggleSettingPanel(panelName) {
   renderSettings();
 }
 
+function showUpdateNotice(worker = null) {
+  waitingServiceWorker = worker || waitingServiceWorker;
+  updateStatusLabel.textContent = "更新あり";
+  updateNotice.hidden = false;
+}
+
+function hideUpdateNotice() {
+  updateNotice.hidden = true;
+}
+
+function reloadForUpdate() {
+  if (waitingServiceWorker) {
+    waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
+    return;
+  }
+  window.location.reload();
+}
+
+function watchServiceWorkerRegistration(registration) {
+  if (registration.waiting) {
+    showUpdateNotice(registration.waiting);
+  }
+
+  registration.addEventListener("updatefound", () => {
+    const nextWorker = registration.installing;
+    if (!nextWorker) return;
+
+    nextWorker.addEventListener("statechange", () => {
+      if (nextWorker.state === "installed" && navigator.serviceWorker.controller) {
+        showUpdateNotice(nextWorker);
+      }
+    });
+  });
+}
+
+async function checkForAppUpdate(showResult = false) {
+  if (!("serviceWorker" in navigator)) return;
+  updateStatusLabel.textContent = "確認中";
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration("./");
+    if (!registration) {
+      updateStatusLabel.textContent = "未登録";
+      return;
+    }
+
+    await registration.update();
+    if (registration.waiting) {
+      showUpdateNotice(registration.waiting);
+      return;
+    }
+
+    updateStatusLabel.textContent = "最新";
+    if (showResult) alert("アプリは最新です。");
+  } catch {
+    updateStatusLabel.textContent = "失敗";
+    if (showResult) alert("更新を確認できませんでした。通信状態を確認してください。");
+  }
+}
+
 function render() {
   applyAppearance();
   renderList();
@@ -1057,6 +1124,14 @@ photoReviewSetting.addEventListener("change", () => {
 
 photoNoticeButton.addEventListener("click", showPhotoSafetyNotice);
 
+checkUpdateButton.addEventListener("click", () => {
+  checkForAppUpdate(true);
+});
+
+reloadUpdateButton.addEventListener("click", reloadForUpdate);
+
+dismissUpdateButton.addEventListener("click", hideUpdateNotice);
+
 views.settings.addEventListener("click", (event) => {
   const row = event.target.closest("[data-setting-panel]");
   if (!row) return;
@@ -1111,7 +1186,15 @@ deleteAllButton.addEventListener("click", () => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
+    navigator.serviceWorker.register("./service-worker.js").then((registration) => {
+      watchServiceWorkerRegistration(registration);
+    });
+  });
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (isReloadingForUpdate) return;
+    isReloadingForUpdate = true;
+    window.location.reload();
   });
 }
 

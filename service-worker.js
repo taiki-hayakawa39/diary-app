@@ -1,4 +1,4 @@
-const CACHE_NAME = "diary-app-v16";
+const CACHE_NAME = "diary-app-v17";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -17,7 +17,6 @@ self.addEventListener("install", (event) => {
       return cache.addAll(APP_FILES);
     }),
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -57,4 +56,10 @@ self.addEventListener("fetch", (event) => {
       );
     }),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
