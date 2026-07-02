@@ -1057,20 +1057,10 @@ photoReviewSetting.addEventListener("change", () => {
 
 photoNoticeButton.addEventListener("click", showPhotoSafetyNotice);
 
-photoAuditRow.addEventListener("click", () => {
-  toggleSettingPanel("photos");
-});
-
-themeColorRow.addEventListener("click", () => {
-  toggleSettingPanel("theme");
-});
-
-textSettingRow.addEventListener("click", () => {
-  toggleSettingPanel("text");
-});
-
-fontStyleRow.addEventListener("click", () => {
-  toggleSettingPanel("font");
+views.settings.addEventListener("click", (event) => {
+  const row = event.target.closest("[data-setting-panel]");
+  if (!row) return;
+  toggleSettingPanel(row.dataset.settingPanel);
 });
 
 themeColorOptions.addEventListener("click", (event) => {
