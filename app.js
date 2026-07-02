@@ -809,8 +809,10 @@ function toggleModeMenu(forceOpen = null) {
 }
 
 function syncExpandableSetting(row, options, isExpanded) {
+  if (!row || !options) return;
   row.setAttribute("aria-expanded", String(isExpanded));
-  row.querySelector(".chevron").textContent = isExpanded ? "⌄" : "›";
+  const chevron = row.querySelector(".chevron");
+  if (chevron) chevron.textContent = isExpanded ? "⌄" : "›";
   options.hidden = !isExpanded;
 }
 
@@ -819,13 +821,22 @@ function toggleSettingPanel(panelName) {
   renderSettings();
 }
 
+function bindSettingPanel(row, panelName) {
+  if (!row) return;
+  row.addEventListener("click", (event) => {
+    event.preventDefault();
+    toggleSettingPanel(panelName);
+  });
+}
+
 function showUpdateNotice(worker = null) {
   waitingServiceWorker = worker || waitingServiceWorker;
-  updateStatusLabel.textContent = "更新あり";
-  updateNotice.hidden = false;
+  if (updateStatusLabel) updateStatusLabel.textContent = "更新あり";
+  if (updateNotice) updateNotice.hidden = false;
 }
 
 function hideUpdateNotice() {
+  if (!updateNotice) return;
   updateNotice.hidden = true;
 }
 
@@ -856,12 +867,12 @@ function watchServiceWorkerRegistration(registration) {
 
 async function checkForAppUpdate(showResult = false) {
   if (!("serviceWorker" in navigator)) return;
-  updateStatusLabel.textContent = "確認中";
+  if (updateStatusLabel) updateStatusLabel.textContent = "確認中";
 
   try {
     const registration = await navigator.serviceWorker.getRegistration("./");
     if (!registration) {
-      updateStatusLabel.textContent = "未登録";
+      if (updateStatusLabel) updateStatusLabel.textContent = "未登録";
       return;
     }
 
@@ -871,10 +882,10 @@ async function checkForAppUpdate(showResult = false) {
       return;
     }
 
-    updateStatusLabel.textContent = "最新";
+    if (updateStatusLabel) updateStatusLabel.textContent = "最新";
     if (showResult) alert("アプリは最新です。");
   } catch {
-    updateStatusLabel.textContent = "失敗";
+    if (updateStatusLabel) updateStatusLabel.textContent = "失敗";
     if (showResult) alert("更新を確認できませんでした。通信状態を確認してください。");
   }
 }
@@ -1124,19 +1135,24 @@ photoReviewSetting.addEventListener("change", () => {
 
 photoNoticeButton.addEventListener("click", showPhotoSafetyNotice);
 
-checkUpdateButton.addEventListener("click", () => {
-  checkForAppUpdate(true);
-});
+if (checkUpdateButton) {
+  checkUpdateButton.addEventListener("click", () => {
+    checkForAppUpdate(true);
+  });
+}
 
-reloadUpdateButton.addEventListener("click", reloadForUpdate);
+if (reloadUpdateButton) {
+  reloadUpdateButton.addEventListener("click", reloadForUpdate);
+}
 
-dismissUpdateButton.addEventListener("click", hideUpdateNotice);
+if (dismissUpdateButton) {
+  dismissUpdateButton.addEventListener("click", hideUpdateNotice);
+}
 
-views.settings.addEventListener("click", (event) => {
-  const row = event.target.closest("[data-setting-panel]");
-  if (!row) return;
-  toggleSettingPanel(row.dataset.settingPanel);
-});
+bindSettingPanel(themeColorRow, "theme");
+bindSettingPanel(textSettingRow, "text");
+bindSettingPanel(fontStyleRow, "font");
+bindSettingPanel(photoAuditRow, "photos");
 
 themeColorOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-theme]");
