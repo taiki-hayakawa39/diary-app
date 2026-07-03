@@ -1407,10 +1407,15 @@ textarea {
   resize: vertical;
 }
 
+.mode-panel textarea.compact-source-field {
+  min-height: 142px;
+  max-height: 190px;
+}
+
 .photo-preview-list {
   position: absolute;
   right: 16px;
-  bottom: calc(238px + env(safe-area-inset-bottom));
+  bottom: calc(256px + env(safe-area-inset-bottom));
   left: 16px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1480,7 +1485,7 @@ textarea {
 .photo-add-tile {
   position: absolute;
   right: 16px;
-  bottom: calc(178px + env(safe-area-inset-bottom));
+  bottom: calc(196px + env(safe-area-inset-bottom));
   left: 16px;
   display: flex;
   align-items: center;
