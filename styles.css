@@ -1848,6 +1848,319 @@ textarea {
   font-size: 1.2rem;
 }
 
+/* Daily Sheets visual refresh: paper-like surfaces while keeping the existing controls. */
+.app-shell {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.54) 0 1px, transparent 1px 100%) 0 0 / 22px 22px,
+    var(--bg);
+}
+
+.top-bar,
+.calendar-header,
+.settings-header {
+  min-height: 76px;
+}
+
+.top-bar h1,
+.settings-header h1 {
+  color: #303030;
+  font-size: 1.08rem;
+  letter-spacing: 0;
+}
+
+.round-button,
+.today-button,
+.write-circle-button,
+.write-date-pill {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.round-button,
+.today-button,
+.write-circle-button {
+  border-radius: 18px;
+}
+
+.month-section h2,
+.selected-day-section h2 {
+  margin: 16px 6px 12px;
+  color: #3c3c3c;
+  font-size: 1.08rem;
+}
+
+.review-month-button {
+  min-height: 34px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.entry-list {
+  gap: 14px;
+}
+
+.entry-card {
+  min-height: 122px;
+  overflow: visible;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(70, 208, 205, 0.16) 0 4px, transparent 4px),
+    linear-gradient(#ffffff, #ffffff);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.055);
+}
+
+.entry-card::after {
+  position: absolute;
+  right: 16px;
+  bottom: -4px;
+  left: 16px;
+  height: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgba(255, 255, 255, 0.58);
+  content: "";
+}
+
+.entry-card-main {
+  grid-template-columns: 72px 1fr;
+}
+
+.entry-date-box {
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.entry-weekday {
+  font-size: 0.72rem;
+}
+
+.entry-day {
+  font-size: 2rem;
+}
+
+.entry-time {
+  color: rgba(70, 208, 205, 0.78);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.entry-body-box {
+  align-content: start;
+  padding: 18px 54px 16px 16px;
+}
+
+.entry-title {
+  color: #333333;
+  font-size: 1.18rem;
+  line-height: 1.32;
+}
+
+.entry-preview {
+  color: #676767;
+}
+
+.entry-delete-quick-button {
+  top: 12px;
+  right: 12px;
+  height: 28px;
+  min-width: 40px;
+  border-radius: 7px;
+  background: rgba(235, 59, 49, 0.07);
+}
+
+.entry-photo-strip {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.entry-photo-strip img {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+}
+
+.calendar-header h1 {
+  min-height: 42px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: none;
+}
+
+.calendar-shell {
+  margin: 0 -2px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.weekday-row span {
+  min-height: 28px;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.68);
+  font-size: 0.76rem;
+}
+
+.calendar-day {
+  min-height: 64px;
+  border-right: 1px solid rgba(0, 0, 0, 0.055);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.055);
+  background: rgba(255, 255, 255, 0.52);
+  font-size: 1.05rem;
+}
+
+.calendar-day.is-outside {
+  background: rgba(255, 255, 255, 0.25);
+  color: #9a9a9a;
+}
+
+.calendar-day.is-selected {
+  outline: 0;
+}
+
+.calendar-day.is-selected span {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.calendar-day.has-entry::after {
+  right: 12px;
+  bottom: 9px;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+}
+
+.settings-stack {
+  gap: 10px;
+  padding: 42px 4px 12px;
+}
+
+.settings-section-label {
+  margin: 22px 4px 5px;
+  color: #808080;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.settings-section-label:first-child {
+  margin-top: 0;
+}
+
+.settings-section-label.danger-label {
+  color: rgba(235, 59, 49, 0.82);
+}
+
+.settings-card,
+.settings-card.single {
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+
+.settings-row {
+  min-height: 56px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.065);
+  padding: 0 14px;
+  font-size: 1rem;
+}
+
+.setting-options,
+.photo-safety-note,
+.photo-audit-item,
+.text-preview-box,
+.color-choice,
+.font-choice,
+.segmented-options button {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.switch-ui {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.editor-dialog,
+.diary-form {
+  background:
+    linear-gradient(90deg, rgba(70, 208, 205, 0.16) 15px, transparent 15px 100%),
+    linear-gradient(#ffffff, #ffffff);
+}
+
+.diary-form {
+  padding-right: 18px;
+  padding-left: 18px;
+}
+
+.write-header {
+  min-height: 68px;
+}
+
+.write-date-pill {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.mode-menu {
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+#entryBody,
+.mode-panel input,
+.mode-panel textarea {
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.88) 0,
+      rgba(255, 255, 255, 0.88) 34px,
+      rgba(0, 0, 0, 0.045) 35px
+    );
+}
+
+#entryBody {
+  padding: 18px 16px 92px;
+}
+
+.mode-panel {
+  gap: 14px;
+}
+
+.mode-panel label span {
+  font-size: 0.8rem;
+}
+
+.photo-add-tile {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.photo-preview-item {
+  border-radius: 8px;
+}
+
+.write-toolbox {
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.delete-entry-button {
+  border-radius: 8px;
+}
+
 @media (min-width: 700px) {
   body {
     background: #dedede;
