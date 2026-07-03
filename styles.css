@@ -1362,6 +1362,13 @@ textarea {
   box-shadow: none;
 }
 
+#entryBody {
+  align-self: start;
+  height: min(500px, calc(100dvh - 432px));
+  min-height: 300px;
+  padding-bottom: 92px;
+}
+
 .mode-panel {
   display: grid;
   align-content: start;

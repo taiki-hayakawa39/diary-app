@@ -1,4 +1,4 @@
-const CACHE_NAME = "diary-app-v20";
+const CACHE_NAME = "diary-app-v21";
 const APP_FILES = [
   "./",
   "./index.html",
