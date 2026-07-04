@@ -576,8 +576,13 @@ function createEntryCard(entry) {
   const main = document.createElement("div");
   const quickDeleteButton = document.createElement("button");
   const revealButton = document.createElement("button");
+  const editButton = document.createElement("button");
+  const actions = document.createElement("div");
   const date = fromDateKey(entry.date);
   const entryTitle = getEntryTitle(entry);
+  const entryPreview = getEntryPreview(entry) || "写真だけの日記";
+  const photos = Array.isArray(entry.photos) ? entry.photos : [];
+  let isRevealed = false;
 
   item.className = "entry-item";
   card.className = "entry-card";
@@ -613,15 +618,50 @@ function createEntryCard(entry) {
 
   const preview = document.createElement("p");
   preview.className = "entry-preview";
-  preview.textContent = "内容は非表示です";
 
   revealButton.type = "button";
   revealButton.className = "entry-reveal-button";
-  revealButton.textContent = "表示";
-  revealButton.setAttribute("aria-label", "この日記を表示");
-  revealButton.addEventListener("click", openEntry);
 
-  bodyBox.append(title, preview, revealButton);
+  editButton.type = "button";
+  editButton.className = "entry-edit-button";
+  editButton.textContent = "編集";
+  editButton.setAttribute("aria-label", "この日記を編集");
+  editButton.addEventListener("click", openEntry);
+
+  actions.className = "entry-card-actions";
+
+  const renderCardBody = () => {
+    title.textContent = isRevealed ? entryTitle : "この日の記録";
+    preview.textContent = isRevealed ? entryPreview : "内容は非表示です";
+    preview.classList.toggle("is-revealed", isRevealed);
+    revealButton.textContent = isRevealed ? "隠す" : "表示";
+    revealButton.setAttribute("aria-label", isRevealed ? "この日記を隠す" : "この日記を表示");
+    editButton.hidden = !isRevealed;
+
+    actions.replaceChildren(revealButton, editButton);
+    bodyBox.replaceChildren(title, preview);
+
+    if (isRevealed && photos.length > 0) {
+      const photoStrip = document.createElement("div");
+      photoStrip.className = "entry-photo-strip";
+      photos.slice(0, 4).forEach((photo, index) => {
+        const image = document.createElement("img");
+        image.src = photo.src || photo.dataUrl;
+        image.alt = `日記の写真 ${index + 1}`;
+        photoStrip.append(image);
+      });
+      bodyBox.append(photoStrip);
+    }
+
+    bodyBox.append(actions);
+  };
+
+  revealButton.addEventListener("click", () => {
+    isRevealed = !isRevealed;
+    renderCardBody();
+  });
+
+  renderCardBody();
 
   dateBox.append(weekday, day, time);
   main.append(dateBox, bodyBox);
