@@ -414,6 +414,21 @@ textarea {
   -webkit-line-clamp: var(--list-lines, 4);
 }
 
+.entry-reveal-button {
+  justify-self: start;
+  min-height: 34px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 0 18px;
+}
+
+.entry-reveal-button:active {
+  transform: scale(0.96);
+}
+
 .entry-photo-strip {
   display: flex;
   gap: 6px;
@@ -1949,6 +1964,11 @@ textarea {
 .entry-body-box {
   align-content: start;
   padding: 18px 54px 16px 16px;
+}
+
+.entry-reveal-button {
+  border-radius: 7px;
+  box-shadow: none;
 }
 
 .entry-title {

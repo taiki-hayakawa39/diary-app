@@ -573,20 +573,21 @@ async function handlePhotoFiles(files) {
 function createEntryCard(entry) {
   const item = document.createElement("li");
   const card = document.createElement("div");
-  const openButton = document.createElement("button");
+  const main = document.createElement("div");
   const quickDeleteButton = document.createElement("button");
+  const revealButton = document.createElement("button");
   const date = fromDateKey(entry.date);
   const entryTitle = getEntryTitle(entry);
 
   item.className = "entry-item";
   card.className = "entry-card";
-  openButton.type = "button";
-  openButton.className = "entry-card-main";
-  openButton.addEventListener("click", () => {
+  main.className = "entry-card-main";
+
+  const openEntry = () => {
     selectedDate = entry.date;
     visibleMonth = startOfMonth(date);
     openEditor(entry);
-  });
+  };
 
   const dateBox = document.createElement("div");
   dateBox.className = "entry-date-box";
@@ -608,29 +609,22 @@ function createEntryCard(entry) {
 
   const title = document.createElement("p");
   title.className = "entry-title";
-  title.textContent = entryTitle;
+  title.textContent = "この日の記録";
 
   const preview = document.createElement("p");
   preview.className = "entry-preview";
-  preview.textContent = getEntryPreview(entry);
+  preview.textContent = "内容は非表示です";
 
-  const photos = Array.isArray(entry.photos) ? entry.photos : [];
-  if (photos.length > 0) {
-    const strip = document.createElement("div");
-    strip.className = "entry-photo-strip";
-    photos.slice(0, 3).forEach((photo) => {
-      const image = document.createElement("img");
-      image.src = photo.src;
-      image.alt = photo.name || "日記の写真";
-      strip.append(image);
-    });
-    bodyBox.append(title, preview, strip);
-  } else {
-    bodyBox.append(title, preview);
-  }
+  revealButton.type = "button";
+  revealButton.className = "entry-reveal-button";
+  revealButton.textContent = "表示";
+  revealButton.setAttribute("aria-label", "この日記を表示");
+  revealButton.addEventListener("click", openEntry);
+
+  bodyBox.append(title, preview, revealButton);
 
   dateBox.append(weekday, day, time);
-  openButton.append(dateBox, bodyBox);
+  main.append(dateBox, bodyBox);
 
   quickDeleteButton.type = "button";
   quickDeleteButton.className = "entry-delete-quick-button";
@@ -641,7 +635,7 @@ function createEntryCard(entry) {
     deleteEntryById(entry.id, entryTitle);
   });
 
-  card.append(openButton, quickDeleteButton);
+  card.append(main, quickDeleteButton);
   item.replaceChildren(card);
   return item;
 }
