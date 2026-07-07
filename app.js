@@ -570,6 +570,45 @@ async function handlePhotoFiles(files) {
   }
 }
 
+function createEntryPhotoAlbum(photos, mode = "normal") {
+  const album = document.createElement("div");
+  const header = document.createElement("div");
+  const label = document.createElement("span");
+  const count = document.createElement("span");
+  const grid = document.createElement("div");
+  const visiblePhotos = photos.slice(0, mode === "memory" ? 5 : 4);
+
+  album.className = `entry-photo-album entry-photo-album--${mode}`;
+  header.className = "entry-photo-album-header";
+  label.textContent = mode === "memory" ? "Memory Album" : "Photos";
+  count.textContent = `${photos.length}枚`;
+  grid.className = "entry-photo-album-grid";
+
+  visiblePhotos.forEach((photo, index) => {
+    const frame = document.createElement("figure");
+    const image = document.createElement("img");
+
+    frame.className = "entry-photo-frame";
+    if (mode === "memory" && index === 0) frame.classList.add("is-featured");
+    image.src = photo.src || photo.dataUrl;
+    image.alt = photo.name || `日記の写真 ${index + 1}`;
+
+    frame.append(image);
+
+    if (index === visiblePhotos.length - 1 && photos.length > visiblePhotos.length) {
+      const more = document.createElement("figcaption");
+      more.textContent = `+${photos.length - visiblePhotos.length}`;
+      frame.append(more);
+    }
+
+    grid.append(frame);
+  });
+
+  header.append(label, count);
+  album.append(header, grid);
+  return album;
+}
+
 function createEntryCard(entry) {
   const item = document.createElement("li");
   const card = document.createElement("div");
@@ -586,6 +625,7 @@ function createEntryCard(entry) {
 
   item.className = "entry-item";
   card.className = "entry-card";
+  card.classList.add(`entry-card--${entry.mode || "normal"}`);
   main.className = "entry-card-main";
 
   const openEntry = () => {
@@ -641,17 +681,7 @@ function createEntryCard(entry) {
     actions.replaceChildren(revealButton, editButton);
     bodyBox.replaceChildren(title, preview);
 
-    if (isRevealed && photos.length > 0) {
-      const photoStrip = document.createElement("div");
-      photoStrip.className = "entry-photo-strip";
-      photos.slice(0, 4).forEach((photo, index) => {
-        const image = document.createElement("img");
-        image.src = photo.src || photo.dataUrl;
-        image.alt = `日記の写真 ${index + 1}`;
-        photoStrip.append(image);
-      });
-      bodyBox.append(photoStrip);
-    }
+    if (isRevealed && photos.length > 0) bodyBox.append(createEntryPhotoAlbum(photos, entry.mode));
 
     bodyBox.append(actions);
   };

@@ -470,6 +470,110 @@ textarea {
   object-fit: cover;
 }
 
+.entry-photo-album {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 10px;
+  border: 1px solid rgba(70, 208, 205, 0.22);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.58)),
+    linear-gradient(135deg, rgba(70, 208, 205, 0.1), rgba(255, 255, 255, 0));
+}
+
+.entry-photo-album-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.entry-photo-album-header span:last-child {
+  color: #8f8f8f;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+}
+
+.entry-photo-album-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.entry-photo-frame {
+  position: relative;
+  aspect-ratio: 1;
+  margin: 0;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  border-radius: 9px;
+  background: #eeeeee;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+}
+
+.entry-photo-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.entry-photo-frame figcaption {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.38);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.entry-photo-album--memory {
+  border-color: rgba(70, 208, 205, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 255, 254, 0.7)),
+    repeating-linear-gradient(0deg, rgba(70, 208, 205, 0.08) 0 1px, transparent 1px 24px);
+}
+
+.entry-photo-album--memory .entry-photo-album-header::before {
+  width: 28px;
+  height: 2px;
+  margin-right: 8px;
+  background: var(--accent);
+  content: "";
+}
+
+.entry-photo-album--memory .entry-photo-album-header {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.entry-photo-album--memory .entry-photo-album-header span:last-child {
+  margin-left: auto;
+}
+
+.entry-photo-album--memory .entry-photo-album-grid {
+  grid-template-columns: 1.25fr 1fr 1fr;
+  grid-auto-rows: minmax(62px, auto);
+}
+
+.entry-photo-album--memory .entry-photo-frame.is-featured {
+  grid-row: span 2;
+  aspect-ratio: auto;
+  min-height: 132px;
+  transform: rotate(-1deg);
+}
+
+.entry-photo-album--memory .entry-photo-frame:not(.is-featured):nth-child(odd) {
+  transform: rotate(1deg);
+}
+
 .empty-state {
   margin: 24px 10px;
   color: var(--muted);
